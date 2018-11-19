@@ -16,4 +16,8 @@
     <ProjectReference Include="..\MerkleTree\MerkleTree.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Net\EventArgs\" />
+  </ItemGroup>
+
 </Project>

@@ -55,8 +55,9 @@ namespace SimpleBlockchain.Net
         {
             byte[] signature = Signer.SignHash(hash);
 
-            string message = Commands.ClientPublicKeyResponse + " " + ByteConverter.ConvertToString(Signer.PublicKey) + " " +
-                             Commands.ClientAuthResponse + " " + ByteConverter.ConvertToString(signature);
+            string message = Commands.ClientAuthResponse + " " +
+                             Commands.ClientPublicKeyResponse + " " + ByteConverter.ConvertToString(Signer.PublicKey) + " " +
+                             Commands.ClientSignatureResponse + " " + ByteConverter.ConvertToString(signature);
 
             client.Send(message);
         }
