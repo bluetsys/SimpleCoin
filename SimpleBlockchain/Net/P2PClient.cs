@@ -58,13 +58,11 @@ namespace SimpleBlockchain.Net
             string message = Commands.ClientPublicKeyResponse + " " + ByteConverter.ConvertToString(Signer.PublicKey) + " " +
                              Commands.ClientAuthResponse + " " + ByteConverter.ConvertToString(signature);
 
-            client.Send(Encoding.Unicode.GetBytes(message));
+            client.Send(message);
         }
 
         public void Connect(string url)
         {
-            Disconnect();
-
             client = new WebSocket(url);
             client.OnMessage += onMessageHandler;
             state = ClientState.InitializeConnection;
@@ -76,7 +74,7 @@ namespace SimpleBlockchain.Net
 
         public void Disconnect()
         {
-            client?.Send(Encoding.Unicode.GetBytes(Commands.ClientQuitRequest));
+            client?.Send(Commands.ClientQuitRequest);
             client?.Close();
 
             state = ClientState.NotConnected;
@@ -90,7 +88,7 @@ namespace SimpleBlockchain.Net
             string blockJson = JsonConvert.SerializeObject(block);
             string message = Commands.ClientAcceptBlockRequest + " " + blockJson;
 
-            client.Send(Encoding.Unicode.GetBytes(message));
+            client.Send(message);
         }
 
         public void SendTransaction(Transaction transaction)
@@ -101,7 +99,7 @@ namespace SimpleBlockchain.Net
             string transactionJson = JsonConvert.SerializeObject(transaction);
             string message = Commands.ClientAcceptTransactionRequest + " " + transactionJson;
 
-            client.Send(Encoding.Unicode.GetBytes(message));
+            client.Send(message);
         }
     }
 }
