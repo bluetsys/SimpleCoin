@@ -15,6 +15,9 @@ namespace SimpleBlockchain.Configs
 
         public string AddressBookPath => parameters.AddressBookPath;
 
+        public int RandomNumberLength => parameters.RandomNumberLength;
+        public int HashLength => parameters.HashLength;
+
         public JsonNetworkConfig(string path)
         {
             JsonSerializer jsonSerializer = new JsonSerializer();

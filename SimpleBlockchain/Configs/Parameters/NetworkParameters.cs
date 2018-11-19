@@ -9,5 +9,7 @@ namespace SimpleBlockchain.Configs.Parameters
     public class NetworkParameters
     {
         public string AddressBookPath { get; set; }
+        public int RandomNumberLength { get; set; }
+        public int HashLength { get; set; }
     }
 }
