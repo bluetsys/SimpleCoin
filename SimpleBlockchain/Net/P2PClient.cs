@@ -22,12 +22,9 @@ namespace SimpleBlockchain.Net
         public ISignatureProvider Signer { get; set; }
         public IByteConverter ByteConverter { get; set; }
 
-        public P2PClient(ISignatureProvider signer, IByteConverter converter)
+        public P2PClient()
         {
             state = ClientState.NotConnected;
-
-            Signer = signer;
-            ByteConverter = converter;
         }
 
         private void onMessageHandler(object sender, MessageEventArgs eventArgs)
@@ -40,11 +37,19 @@ namespace SimpleBlockchain.Net
                 case Commands.ServerAuthRequest when state == ClientState.InitializeConnection:
                     sendAuthResponse(ByteConverter.ConvertToByteArray(words[1]));
                     state = ClientState.WaitsConnectionResponse;
+
                     break;
 
                 case Commands.ServerAuthSuccessfulResponse when state == ClientState.WaitsConnectionResponse:
                     state = ClientState.Connected;
+
                     break;
+
+                case Commands.ServerBusyResponse:
+                    throw new WebException("Connection refused by endpoint; it is busy");
+
+                case Commands.ServerProtocolViolationResponse:
+                    throw new ProtocolViolationException($"Remote endpoint caused a protocol violation exception");
 
                 default:
                     throw new ProtocolViolationException($"Command {words[0]} sent during {state} state");
@@ -70,12 +75,14 @@ namespace SimpleBlockchain.Net
 
             string message = Commands.ClientHello;
 
-            client.Send(Encoding.Unicode.GetBytes(message));
+            client.Send(message);
         }
 
         public void Disconnect()
         {
-            client?.Send(Commands.ClientQuitRequest);
+            string message = Commands.ClientQuitRequest;
+
+            client?.Send(message);
             client?.Close();
 
             state = ClientState.NotConnected;

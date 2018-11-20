@@ -9,6 +9,9 @@ using SHA3;
 using SimpleBlockchain.Crypto.Hash;
 using SimpleBlockchain.Crypto.Signatures;
 using SimpleBlockchain.BlockchainComponents;
+using SimpleBlockchain.WalletComponents;
+using Newtonsoft.Json;
+using SimpleBlockchain.Net.EventArgs;
 
 namespace SimpleBlockchain.Net
 {
@@ -19,7 +22,8 @@ namespace SimpleBlockchain.Net
 
         private byte[] hashToVerify;
 
-        //public event 
+        public event EventHandler<BlockAcceptEventArgs> OnBlockAccepted;
+        public event EventHandler<TransactionAcceptEventArgs> OnTransactionAccepted;
 
         public ServerState ServerState { get; private set; }
 
@@ -67,6 +71,20 @@ namespace SimpleBlockchain.Net
             Send(message);
         }
 
+        private void sendServerBusy()
+        {
+            string message = Commands.ServerBusyResponse;
+
+            Send(message);
+        }
+
+        private void sendProtocolViolation()
+        {
+            string message = Commands.ServerProtocolViolationResponse;
+
+            Send(message);
+        }
+
         public void Start()
         {
             server = new WebSocketServer("ws://" + HostName + $":{Port}");
@@ -87,6 +105,7 @@ namespace SimpleBlockchain.Net
                 case Commands.ClientHello when ServerState == ServerState.Idle:
                     requireAuth();
                     ServerState = ServerState.WaitingAuth;
+
                     break;
 
                 case Commands.ClientAuthResponse when ServerState == ServerState.WaitingAuth:
@@ -110,7 +129,35 @@ namespace SimpleBlockchain.Net
 
                 case Commands.ClientAcceptBlockRequest when ServerState == ServerState.Busy:
                     string blockJson = words[1];
-                    
+                    Block block = JsonConvert.DeserializeObject<Block>(blockJson);
+                    BlockAcceptEventArgs blockEventArgs = new BlockAcceptEventArgs(block);
+
+                    OnBlockAccepted?.Invoke(this, blockEventArgs);
+
+                    break;
+
+                case Commands.ClientAcceptTransactionRequest when ServerState == ServerState.Busy:
+                    string transactionJson = words[1];
+                    Transaction transaction = JsonConvert.DeserializeObject<Transaction>(transactionJson);
+                    TransactionAcceptEventArgs transactionEventArgs = new TransactionAcceptEventArgs(transaction);
+
+                    OnTransactionAccepted?.Invoke(this, transactionEventArgs);
+
+                    break;
+
+                case Commands.ClientQuitRequest when ServerState == ServerState.Busy:
+                    ServerState = ServerState.Idle;
+
+                    break;
+
+                default:
+                    if (ServerState == ServerState.Busy || ServerState == ServerState.WaitingAuth)
+                        sendServerBusy();
+                    else
+                        sendProtocolViolation();
+
+                    break;
+
             }
         }
     }

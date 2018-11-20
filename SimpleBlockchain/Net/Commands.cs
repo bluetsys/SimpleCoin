@@ -20,5 +20,6 @@ namespace SimpleBlockchain.Net
         public const string ServerAuthSuccessfulResponse = "AUTH_SUCCESSFUL";
         public const string ServerAuthFailureResponse = "AUTH_FAILURE";
         public const string ServerBusyResponse = "BUSY";
+        public const string ServerProtocolViolationResponse = "INVALID_COMMAND";
     }
 }
