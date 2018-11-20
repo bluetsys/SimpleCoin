@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using SHA3;
 using SimpleBlockchain.Crypto.Hash;
 using SimpleBlockchain.Crypto.Signatures;
+using SimpleBlockchain.BlockchainComponents;
 
 namespace SimpleBlockchain.Net
 {
@@ -106,6 +107,10 @@ namespace SimpleBlockchain.Net
                     }
 
                     break;
+
+                case Commands.ClientAcceptBlockRequest when ServerState == ServerState.Busy:
+                    string blockJson = words[1];
+                    
             }
         }
     }
