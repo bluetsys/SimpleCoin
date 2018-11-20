@@ -21,7 +21,8 @@ namespace ClientDebug
 
             client.Connect("ws://" + Dns.GetHostName() + $":8900/simplecoin");
 
-            Thread.Sleep(1000);
+            while (client.ClientState != ClientState.Connected)
+                ;
 
             Console.WriteLine(client.ClientState == ClientState.Connected ? "Connection successfully established" : "Connection successfully established");
 

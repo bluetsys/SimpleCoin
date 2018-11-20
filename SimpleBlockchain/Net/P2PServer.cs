@@ -10,46 +10,54 @@ using SimpleBlockchain.Crypto.Hash;
 using SimpleBlockchain.Crypto.Signatures;
 using SimpleBlockchain.BlockchainComponents;
 using SimpleBlockchain.WalletComponents;
+using SimpleBlockchain.Configs.Parameters;
 using Newtonsoft.Json;
 using SimpleBlockchain.Net.EventArgs;
+using System.IO;
 
 namespace SimpleBlockchain.Net
 {
     public class P2PServer : WebSocketBehavior
     {
-        private int hashLength;
         private WebSocketServer server;
-        private SHA3Managed digest;
 
         private byte[] hashToVerify;
-
-        public event EventHandler<BlockAcceptEventArgs> OnBlockAccepted;
-        public event EventHandler<TransactionAcceptEventArgs> OnTransactionAccepted;
 
         public ServerState ServerState { get; private set; }
 
         public int RandomNumberLength { get; set; }
-        public int HashLength
-        {
-            get => hashLength;
-
-            set
-            {
-                hashLength = value;
-                digest = new SHA3Managed(hashLength);
-            }
-        }
+        public int HashLength { get; set; }
 
         public string HostName { get; set; }
         public int Port { get; set; }
 
         public IByteConverter Converter { get; set; }
         public ISignatureVerifier Verifier { get; set; }
+        public IDigest Digest { get; set; }
+
+        public event EventHandler<BlockAcceptEventArgs> OnBlockAccepted;
+        public event EventHandler<TransactionAcceptEventArgs> OnTransactionAccepted;
 
         public P2PServer()
         {
             ServerState = ServerState.Idle;
         }
+
+        public P2PServer(int hashLength, int randomNumberLength, string hostName, int port, IByteConverter converter, ISignatureVerifier verifier, IDigest digest)
+            : this()
+        {
+            HashLength = hashLength;
+            RandomNumberLength = randomNumberLength;
+            Digest = digest;
+
+            HostName = hostName;
+            Port = port;
+
+            Converter = converter;
+            Verifier = verifier;
+        }
+
+        #region Data senders.
 
         private void requireAuth()
         {
@@ -58,7 +66,7 @@ namespace SimpleBlockchain.Net
             byte[] randomNumberHash;
 
             rng.GetBytes(randomNumber);
-            randomNumberHash = digest.ComputeHash(randomNumber);
+            randomNumberHash = Digest.GetHash(randomNumber);
             hashToVerify = randomNumberHash;
 
             string message = Commands.ServerAuthRequest + " " + Converter.ConvertToString(randomNumberHash);
@@ -94,11 +102,22 @@ namespace SimpleBlockchain.Net
             Send(message);
         }
 
+        #endregion
+
         public void Start()
         {
             server = new WebSocketServer("ws://" + HostName + $":{Port}");
+            
+            server.AddWebSocketService("/simplecoin", () =>
+            {
+                P2PServer p2pServer = new P2PServer(HashLength, RandomNumberLength, HostName, Port, Converter, Verifier, Digest);
 
-            server.AddWebSocketService<P2PServer>("/simplecoin");
+                p2pServer.OnBlockAccepted += OnBlockAccepted;
+                p2pServer.OnTransactionAccepted += OnTransactionAccepted;
+
+                return p2pServer;
+            });
+
             server.Start();
         }
 
@@ -106,6 +125,7 @@ namespace SimpleBlockchain.Net
 
         protected override void OnMessage(MessageEventArgs e)
         {
+            OnBlockAccepted.Invoke(this, null);
             string message = e.Data;
             string[] words = message.Split(new char[] { ' ' });
             
@@ -166,7 +186,6 @@ namespace SimpleBlockchain.Net
                         sendProtocolViolation();
 
                     break;
-
             }
         }
     }
