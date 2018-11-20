@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 
 namespace SimpleBlockchain.Crypto.Signatures
 {
-    class ECDSASignatureVerifier : ISignatureVerifier
+    public class ECDSASignatureVerifier : ISignatureVerifier
     {
         public bool VerifyHash(byte[] publicKey, byte[] hash, byte[] signature)
         {

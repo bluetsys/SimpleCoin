@@ -15,8 +15,9 @@ using SimpleBlockchain.Net.EventArgs;
 
 namespace SimpleBlockchain.Net
 {
-    class P2PServer : WebSocketBehavior
+    public class P2PServer : WebSocketBehavior
     {
+        private int hashLength;
         private WebSocketServer server;
         private SHA3Managed digest;
 
@@ -28,7 +29,16 @@ namespace SimpleBlockchain.Net
         public ServerState ServerState { get; private set; }
 
         public int RandomNumberLength { get; set; }
-        public int HashLength { get; set; }
+        public int HashLength
+        {
+            get => hashLength;
+
+            set
+            {
+                hashLength = value;
+                digest = new SHA3Managed(hashLength);
+            }
+        }
 
         public string HostName { get; set; }
         public int Port { get; set; }
@@ -39,7 +49,6 @@ namespace SimpleBlockchain.Net
         public P2PServer()
         {
             ServerState = ServerState.Idle;
-            digest = new SHA3Managed(HashLength);
         }
 
         private void requireAuth()

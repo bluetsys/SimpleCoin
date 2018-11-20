@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 
 namespace SimpleBlockchain.Crypto.Signatures
 {
-    class ECDSASignatureProvider : ISignatureProvider
+    public class ECDSASignatureProvider : ISignatureProvider
     {
         private ECDsaCng innerSigner;
         

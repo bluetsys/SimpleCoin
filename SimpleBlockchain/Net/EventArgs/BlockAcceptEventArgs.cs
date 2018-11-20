@@ -5,7 +5,7 @@ using SimpleBlockchain.BlockchainComponents;
 
 namespace SimpleBlockchain.Net.EventArgs
 {
-    class BlockAcceptEventArgs : System.EventArgs
+    public class BlockAcceptEventArgs : System.EventArgs
     {
         public Block Block { get; }
 

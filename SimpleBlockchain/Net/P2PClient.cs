@@ -14,17 +14,18 @@ using Newtonsoft.Json;
 
 namespace SimpleBlockchain.Net
 {
-    class P2PClient
+    public class P2PClient
     {
-        private ClientState state;
         private WebSocket client;
+
+        public ClientState ClientState { get; set; }
 
         public ISignatureProvider Signer { get; set; }
         public IByteConverter ByteConverter { get; set; }
 
         public P2PClient()
         {
-            state = ClientState.NotConnected;
+            ClientState = ClientState.NotConnected;
         }
 
         private void onMessageHandler(object sender, MessageEventArgs eventArgs)
@@ -34,14 +35,14 @@ namespace SimpleBlockchain.Net
 
             switch (words[0])
             {
-                case Commands.ServerAuthRequest when state == ClientState.InitializeConnection:
+                case Commands.ServerAuthRequest when ClientState == ClientState.InitializeConnection:
                     sendAuthResponse(ByteConverter.ConvertToByteArray(words[1]));
-                    state = ClientState.WaitsConnectionResponse;
+                    ClientState = ClientState.WaitsConnectionResponse;
 
                     break;
 
-                case Commands.ServerAuthSuccessfulResponse when state == ClientState.WaitsConnectionResponse:
-                    state = ClientState.Connected;
+                case Commands.ServerAuthSuccessfulResponse when ClientState == ClientState.WaitsConnectionResponse:
+                    ClientState = ClientState.Connected;
 
                     break;
 
@@ -52,7 +53,7 @@ namespace SimpleBlockchain.Net
                     throw new ProtocolViolationException($"Remote endpoint caused a protocol violation exception");
 
                 default:
-                    throw new ProtocolViolationException($"Command {words[0]} sent during {state} state");
+                    throw new ProtocolViolationException($"Command {words[0]} sent during {ClientState} state");
             }
         }
 
@@ -71,7 +72,9 @@ namespace SimpleBlockchain.Net
         {
             client = new WebSocket(url);
             client.OnMessage += onMessageHandler;
-            state = ClientState.InitializeConnection;
+            ClientState = ClientState.InitializeConnection;
+
+            client.Connect();
 
             string message = Commands.ClientHello;
 
@@ -85,12 +88,12 @@ namespace SimpleBlockchain.Net
             client?.Send(message);
             client?.Close();
 
-            state = ClientState.NotConnected;
+            ClientState = ClientState.NotConnected;
         }
 
         public void SendBlock(Block block)
         {
-            if (state != ClientState.Connected)
+            if (ClientState != ClientState.Connected)
                 return;
 
             string blockJson = JsonConvert.SerializeObject(block);
@@ -101,7 +104,7 @@ namespace SimpleBlockchain.Net
 
         public void SendTransaction(Transaction transaction)
         {
-            if (state != ClientState.Connected)
+            if (ClientState != ClientState.Connected)
                 return;
 
             string transactionJson = JsonConvert.SerializeObject(transaction);

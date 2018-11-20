@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SimpleBlockchain.Net
 {
-    enum ServerState
+    public enum ServerState
     {
         Idle,
         WaitingAuth,

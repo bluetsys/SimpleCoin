@@ -5,7 +5,7 @@ using SimpleBlockchain.WalletComponents;
 
 namespace SimpleBlockchain.Net.EventArgs
 {
-    class TransactionAcceptEventArgs : System.EventArgs
+    public class TransactionAcceptEventArgs : System.EventArgs
     {
         public Transaction Transaction { get; }
 

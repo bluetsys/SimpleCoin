@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SimpleBlockchain.Net
 {
-    enum ClientState
+    public enum ClientState
     {
         NotConnected,
         InitializeConnection,
