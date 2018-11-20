@@ -9,7 +9,11 @@ namespace SimpleBlockchain.Configs
     public interface INetworkConfig
     {
         string AddressBookPath { get; }
-        int RandomNumberLength { get; }
+
         int HashLength { get; }
+        int RandomNumberLength { get; }
+
+        string PeerHostName { get; }
+        int PeerPort { get; }
     }
 }

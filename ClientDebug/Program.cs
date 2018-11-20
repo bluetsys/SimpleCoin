@@ -19,12 +19,11 @@ namespace ClientDebug
 
             #region Connection.
 
-            client.Connect("ws://" + Dns.GetHostName() + $":8900/simplecoin");
+            client.Connect("ws://" + Dns.GetHostName() + ":8900/simplecoin");
 
-            while (client.ClientState != ClientState.Connected)
-                ;
+            Thread.Sleep(1000);
 
-            Console.WriteLine(client.ClientState == ClientState.Connected ? "Connection successfully established" : "Connection successfully established");
+            Console.WriteLine(client.ClientState == ClientState.Connected ? "Connection successfully established" : "Connection was not established");
 
             #endregion
         }
