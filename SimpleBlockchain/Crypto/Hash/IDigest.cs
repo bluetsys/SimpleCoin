@@ -8,7 +8,6 @@ namespace SimpleBlockchain.Crypto.Hash
 {
     public interface IDigest
     {
-        int Id { get; }
         int HashLength { get; }
 
         byte[] GetHash(byte[] data);

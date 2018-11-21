@@ -11,13 +11,10 @@ namespace SimpleBlockchain.Crypto.Hash
     {
         private SHA3Managed digest;
 
-        public int Id { get; }
-
         public int HashLength => digest.HashByteLength;
 
-        public KeccakDigest(int id, int hashLengthInBits)
+        public KeccakDigest(int hashLengthInBits)
         {
-            Id = id;
             digest = new SHA3Managed(hashLengthInBits);
         }
 

@@ -57,8 +57,6 @@ namespace SimpleBlockchain.BlockchainComponents
             IByteConverter converter = hashFactory.GetByteConverter();
             IDigest digest = hashFactory.GetDigest();
 
-            HashAlgorithmId = digest.Id;
-
             string data = converter.ConvertToString(Nonce) +
                           converter.ConvertToString(PreviousHash) +
                           CreationTime.ToString() +

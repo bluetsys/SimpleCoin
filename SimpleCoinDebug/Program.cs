@@ -191,7 +191,7 @@ namespace SimpleBlockchain
             #region Initial blocks.
             
             IHashFactory miningHashFactory = miningFactory.GetMiningHashFactoryById(3);
-            IMiner miner = new BasicMiner(Difficulty, miningHashFactory);
+            IMiner miner = new BasicMiner(3, Difficulty, miningHashFactory);
 
             Block firstInitialBlock = new Block(firstWallet.PublicKey, new byte[hashFactory.GetDigest().HashLength], firstInitialList, hashFactory);
 

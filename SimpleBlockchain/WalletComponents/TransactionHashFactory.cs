@@ -18,7 +18,7 @@ namespace SimpleBlockchain.WalletComponents
 
         public TransactionHashFactory()
         {
-            digest = new Lazy<KeccakDigest>(() => new KeccakDigest(id: 0, hashLengthInBits: 512));
+            digest = new Lazy<KeccakDigest>(() => new KeccakDigest(hashLengthInBits: 512));
             nonceGenerator = new Lazy<RandomNonceGenerator>(() => new RandomNonceGenerator(NonceLength));
             byteConverter = new Lazy<ByteConverter>(() => new ByteConverter());
             keccakMerkleRoot = new Lazy<KeccakMerkleRootComputer>(() => new KeccakMerkleRootComputer(hashLengthInBits: 512));

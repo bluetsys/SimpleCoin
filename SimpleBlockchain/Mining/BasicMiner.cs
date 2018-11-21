@@ -11,11 +11,13 @@ namespace SimpleBlockchain.Mining
 {
     public class BasicMiner : IMiner
     {
+        public int HashAlgorithmId { get; }
         public int Difficulty { get; }
         public IHashFactory HashFactory { get; }
 
-        public BasicMiner(int difficulty, IHashFactory hashFactory)
+        public BasicMiner(int hashAlgorithmId, int difficulty, IHashFactory hashFactory)
         {
+            HashAlgorithmId = hashAlgorithmId;
             Difficulty = difficulty;
             HashFactory = hashFactory;
         }
@@ -33,7 +35,9 @@ namespace SimpleBlockchain.Mining
 
             byte[] target = new byte[Difficulty];
 
+            block.HashAlgorithmId = HashAlgorithmId;
             block.Difficulty = Difficulty;
+
             nonceGenerator.Reset();
 
             #region Parallel mining.

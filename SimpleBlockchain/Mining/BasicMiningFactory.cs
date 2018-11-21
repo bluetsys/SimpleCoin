@@ -30,15 +30,8 @@ namespace SimpleBlockchain.Mining
             return factor;
         }
 
-        public IMiner GetMiner(IEnumerable<Transaction> transactions, Block previousBlock)
+        private int adjustDifficultyByFactor(double factor, int difficulty, int maxDifficulty)
         {
-            double factor = amountFactor(transactions, previousBlock.Transactions);
-            int algorithmId = previousBlock.HashAlgorithmId;
-            int difficulty = previousBlock.Difficulty;
-
-            IHashFactory hashFactory = GetMiningHashFactoryByFactor(factor, algorithmId);
-            int maxDifficulty = hashFactory.GetDigest().HashLength / 2;
-
             if (factor <= config.DifficultyMostDownFactor)
             {
                 difficulty--;
@@ -61,18 +54,10 @@ namespace SimpleBlockchain.Mining
             if (difficulty > maxDifficulty)
                 difficulty = maxDifficulty;
 
-            return new BasicMiner(difficulty, hashFactory);
+            return difficulty;
         }
 
-        public IHashFactory GetMiningHashFactoryForTransactions(IEnumerable<Transaction> transactions, Block previousBlock)
-        {
-            double factor = amountFactor(transactions, previousBlock.Transactions);
-            int algorithmId = previousBlock.HashAlgorithmId;
-
-            return GetMiningHashFactoryByFactor(factor, algorithmId);
-        }
-
-        public IHashFactory GetMiningHashFactoryByFactor(double factor, int algorithmId)
+        private int adjustAlgorithmIdByFactor(double factor, int algorithmId, int maxId)
         {
             if (factor <= config.HashMostDownFactor)
             {
@@ -93,8 +78,32 @@ namespace SimpleBlockchain.Mining
             if (algorithmId < 0)
                 algorithmId = 0;
 
-            if (algorithmId > 3)
-                algorithmId = 3;
+            if (algorithmId > maxId)
+                algorithmId = maxId;
+
+            return algorithmId;
+        }
+
+        public IMiner GetMiner(IEnumerable<Transaction> transactions, Block previousBlock)
+        {
+            double factor = amountFactor(transactions, previousBlock.Transactions);
+            int algorithmId = previousBlock.HashAlgorithmId;
+            int difficulty = previousBlock.Difficulty;
+            
+            algorithmId = adjustAlgorithmIdByFactor(factor, algorithmId, maxId: 3);
+
+            IHashFactory hashFactory = GetMiningHashFactoryById(algorithmId);
+            int maxDifficulty = hashFactory.GetDigest().HashLength / 2;
+
+            difficulty = adjustDifficultyByFactor(factor, difficulty, maxDifficulty);
+
+            return new BasicMiner(algorithmId, difficulty, hashFactory);
+        }
+
+        public IHashFactory GetMiningHashFactoryForTransactions(IEnumerable<Transaction> transactions, Block previousBlock)
+        {
+            double factor = amountFactor(transactions, previousBlock.Transactions);
+            int algorithmId = adjustAlgorithmIdByFactor(factor, previousBlock.HashAlgorithmId, maxId: 3);
 
             return GetMiningHashFactoryById(algorithmId);
         }
@@ -104,16 +113,16 @@ namespace SimpleBlockchain.Mining
             switch (id)
             {
                 case 0:
-                    return new KeccakFactory(id: 0, hashLengthInBits: 224, nonceLength: 16);
+                    return new KeccakFactory(hashLengthInBits: 224, nonceLength: 16);
 
                 case 1:
-                    return new KeccakFactory(id: 1, hashLengthInBits: 256, nonceLength: 24);
+                    return new KeccakFactory(hashLengthInBits: 256, nonceLength: 24);
 
                 case 2:
-                    return new KeccakFactory(id: 2, hashLengthInBits: 384, nonceLength: 48);
+                    return new KeccakFactory(hashLengthInBits: 384, nonceLength: 48);
 
                 case 3:
-                    return new KeccakFactory(id: 3, hashLengthInBits: 512, nonceLength: 64);
+                    return new KeccakFactory(hashLengthInBits: 512, nonceLength: 64);
 
                 default:
                     return null;

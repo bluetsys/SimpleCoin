@@ -10,7 +10,9 @@ namespace SimpleBlockchain.Mining
 {
     public interface IMiner
     {
+        int HashAlgorithmId { get; }
         int Difficulty { get; }
+
         IHashFactory HashFactory { get; }
 
         void MineBlock(Block block);
