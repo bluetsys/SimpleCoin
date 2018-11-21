@@ -132,8 +132,6 @@ namespace SimpleBlockchain.Net
 
 #if (DEBUG)
             int length = message.Length;
-            int publicKeyLength = words[2].Length;
-            int signatureLength = words[4].Length;
 #endif
 
             switch (words[0])
@@ -145,6 +143,11 @@ namespace SimpleBlockchain.Net
                     break;
 
                 case Commands.ClientAuthResponse when ServerState == ServerState.WaitingAuth:
+#if (DEBUG)
+                    int publicKeyLength = words[2].Length;
+                    int signatureLength = words[4].Length;
+#endif
+
                     byte[] publicKey = Converter.ConvertToByteArray(words[2]);
                     byte[] signature = Converter.ConvertToByteArray(words[4]);
 
