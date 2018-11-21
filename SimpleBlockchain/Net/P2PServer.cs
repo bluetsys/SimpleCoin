@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define DEBUG
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 using WebSocketSharp;
@@ -127,7 +129,11 @@ namespace SimpleBlockchain.Net
         {
             string message = e.Data;
             string[] words = message.Split(new char[] { ' ' });
-            
+
+#if (DEBUG)
+            int length = message.Length;
+#endif
+
             switch (words[0])
             {
                 case Commands.ClientHello when ServerState == ServerState.Idle:

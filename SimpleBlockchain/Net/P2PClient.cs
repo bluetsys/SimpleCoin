@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define DEBUG
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -64,6 +66,10 @@ namespace SimpleBlockchain.Net
             string message = Commands.ClientAuthResponse + " " +
                              Commands.ClientPublicKeyResponse + " " + ByteConverter.ConvertToString(Signer.PublicKey) + " " +
                              Commands.ClientSignatureResponse + " " + ByteConverter.ConvertToString(signature);
+
+#if (DEBUG)
+            int length = message.Length;
+#endif
 
             client.Send(message);
         }
