@@ -18,11 +18,11 @@ namespace ServerDebug
                                             port: 8900,
                                             converter: new ByteConverter(),
                                             verifier: new ECDSASignatureVerifier(),
-                                            digest: new KeccakDigest(0, 512)
+                                            digest: new KeccakDigest(512)
                                             );
 
-            server.OnBlockAccepted += (sender, eventArgs) => Console.WriteLine($"Accepted block:\n{JsonConvert.SerializeObject(eventArgs.Block, Formatting.Indented)}");
-            server.OnTransactionAccepted += (sender, eventArgs) => Console.WriteLine($"Accepted transaction: {JsonConvert.SerializeObject(eventArgs.Transaction, Formatting.Indented)}");
+            server.OnBlockAccepted += (sender, eventArgs) => Console.WriteLine($"Accepted block:\n{JsonConvert.SerializeObject(eventArgs.Block, Formatting.Indented)}\n");
+            server.OnTransactionAccepted += (sender, eventArgs) => Console.WriteLine($"Accepted transaction:\n{JsonConvert.SerializeObject(eventArgs.Transaction, Formatting.Indented)}\n");
 
             server.Start();
 

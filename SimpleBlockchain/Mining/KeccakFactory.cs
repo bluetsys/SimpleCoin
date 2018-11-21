@@ -7,7 +7,7 @@ using SimpleBlockchain.Crypto.Hash;
 
 namespace SimpleBlockchain.Mining
 {
-    class KeccakFactory : IHashFactory
+    public class KeccakFactory : IHashFactory
     {
         public int HashLength { get; }
         
