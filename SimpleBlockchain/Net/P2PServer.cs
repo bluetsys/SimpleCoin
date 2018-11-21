@@ -125,7 +125,6 @@ namespace SimpleBlockchain.Net
 
         protected override void OnMessage(MessageEventArgs e)
         {
-            OnBlockAccepted.Invoke(this, null);
             string message = e.Data;
             string[] words = message.Split(new char[] { ' ' });
             
