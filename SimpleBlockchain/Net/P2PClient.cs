@@ -69,6 +69,8 @@ namespace SimpleBlockchain.Net
 
 #if (DEBUG)
             int length = message.Length;
+            int publicKeyLength = ByteConverter.ConvertToString(Signer.PublicKey).Length;
+            int signatureLength = ByteConverter.ConvertToString(signature).Length;
 #endif
 
             client.Send(message);

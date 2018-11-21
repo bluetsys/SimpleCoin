@@ -132,6 +132,8 @@ namespace SimpleBlockchain.Net
 
 #if (DEBUG)
             int length = message.Length;
+            int publicKeyLength = words[2].Length;
+            int signatureLength = words[4].Length;
 #endif
 
             switch (words[0])
