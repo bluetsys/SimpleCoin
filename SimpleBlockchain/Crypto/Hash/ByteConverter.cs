@@ -8,7 +8,14 @@ namespace SimpleBlockchain.Crypto.Hash
 {
     public class ByteConverter : IByteConverter
     {
-        public string ConvertToString(byte[] sequence) => String.Join(String.Empty, sequence.Select(number => number.ToString("x")));
+        public string ConvertToString(byte[] sequence) => String.Join(String.Empty, sequence.Select(number =>
+        {
+            string hex = number.ToString("x");
+
+            hex = hex.Length == 1 ? "0" + hex : hex;
+
+            return hex;
+        }));
 
         public byte[] ConvertToByteArray(string hex) => Enumerable.Range(0, hex.Length)
                                                         .Where(x => x % 2 == 0)
