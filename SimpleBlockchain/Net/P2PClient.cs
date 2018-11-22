@@ -20,7 +20,7 @@ namespace SimpleBlockchain.Net
     {
         private WebSocket client;
 
-        public ClientState ClientState { get; set; }
+        public ClientState ClientState { get; private set; }
 
         public ISignatureProvider Signer { get; set; }
         public IByteConverter ByteConverter { get; set; }
