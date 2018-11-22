@@ -30,6 +30,12 @@ namespace SimpleBlockchain.Net
             ClientState = ClientState.NotConnected;
         }
 
+        private void throwIfNotConnected()
+        {
+            if (ClientState != ClientState.Connected)
+                throw new InvalidOperationException("Client is not connected");
+        }
+
         private void onMessageHandler(object sender, MessageEventArgs eventArgs)
         {
             string message = eventArgs.Data;
@@ -101,8 +107,7 @@ namespace SimpleBlockchain.Net
 
         public void SendBlock(Block block)
         {
-            if (ClientState != ClientState.Connected)
-                return;
+            throwIfNotConnected();
 
             string blockJson = JsonConvert.SerializeObject(block);
             string message = Commands.ClientAcceptBlockRequest + " " + blockJson;
@@ -112,8 +117,7 @@ namespace SimpleBlockchain.Net
 
         public void SendTransaction(Transaction transaction)
         {
-            if (ClientState != ClientState.Connected)
-                return;
+            throwIfNotConnected();
 
             string transactionJson = JsonConvert.SerializeObject(transaction);
             string message = Commands.ClientAcceptTransactionRequest + " " + transactionJson;
