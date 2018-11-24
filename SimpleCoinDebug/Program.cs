@@ -298,6 +298,9 @@ namespace SimpleBlockchain
             firstBlockchain.NetworkBroadcaster = firstNetwork;
             secondBlockchain.NetworkBroadcaster = secondNetwork;
 
+            firstNetwork.Start();
+            secondNetwork.Start();
+
             #endregion
 
             firstWallet.Blockchain = firstBlockchain;
