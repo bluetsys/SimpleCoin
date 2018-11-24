@@ -72,7 +72,7 @@ namespace SimpleBlockchain
                 RandomNumberLength = 64,
 
                 PeerHostName = Dns.GetHostName(),
-                PeerPort = 8900,
+                PeerPort = 8910,
 
                 ClientTimeout = new TimeSpan(0, 0, 20),
                 ServerTimeout = new TimeSpan(0, 0, 20)
@@ -270,21 +270,33 @@ namespace SimpleBlockchain
 
             #region Address books creation.
 
+            File.Create(FirstBookPath).Close();
+            File.Create(SecondBookPath).Close();
+
             PeerAddress firstPeer = new PeerAddress(firstWallet.PublicKey);
             PeerAddress secondPeer = new PeerAddress(secondWallet.PublicKey);
 
             AddressBook firstPeerAddressBook = new AddressBook(FirstBookPath);
             AddressBook secondPeerAddressBook = new AddressBook(SecondBookPath);
 
+            firstPeerAddressBook.Add(secondPeer, "ws://" + secondNetworkConfig.PeerHostName + $":{secondNetworkConfig.PeerPort}/simplecoin");
+            secondPeerAddressBook.Add(firstPeer, "ws://" + firstNetworkConfig.PeerHostName + $":{firstNetworkConfig.PeerPort}/simplecoin");
+
+            firstPeerAddressBook.SaveOnDrive();
+            secondPeerAddressBook.SaveOnDrive();
+
             #endregion
 
             #region Network.
 
-            IBroadcaster firstToSecond = new Network(secondBlockchain);
-            IBroadcaster secondToFirst = new Network(firstBlockchain);
+            IBroadcaster firstNetwork = new Network(firstBlockchain, firstPeerAddressBook, firstNetworkConfig, firstWallet.Signer, new ECDSASignatureVerifier(), new ByteConverter(),
+                new KeccakDigest(firstNetworkConfig.HashLength));
 
-            firstBlockchain.NetworkBroadcaster = firstToSecond;
-            secondBlockchain.NetworkBroadcaster = secondToFirst;
+            IBroadcaster secondNetwork = new Network(secondBlockchain, secondPeerAddressBook, secondNetworkConfig, secondWallet.Signer, new ECDSASignatureVerifier(), new ByteConverter(),
+                new KeccakDigest(secondNetworkConfig.HashLength));
+
+            firstBlockchain.NetworkBroadcaster = firstNetwork;
+            secondBlockchain.NetworkBroadcaster = secondNetwork;
 
             #endregion
 
