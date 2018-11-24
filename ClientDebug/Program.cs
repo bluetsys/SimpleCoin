@@ -82,6 +82,12 @@ namespace ClientDebug
             #endregion
 
             client.Disconnect();
+
+            client.Connect("ws://" + Dns.GetHostName() + ":8900/simplecoin");
+
+            Thread.Sleep(1000);
+
+            client.SendTransaction(transaction);
         }
     }
 }

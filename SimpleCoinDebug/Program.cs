@@ -1,6 +1,7 @@
 ﻿//#define CREATE_EXTRA_FILE
 
 using System;
+using System.Threading;
 using System.Collections.Generic;
 using SimpleBlockchain.BlockchainComponents;
 using SimpleBlockchain.WalletComponents;
@@ -308,6 +309,7 @@ namespace SimpleBlockchain
 
             firstWallet.SendTokens(16, secondWallet.PublicKey);
             firstWallet.SendTokens(8, secondWallet.PublicKey);
+
             secondBlockchain.ProcessPendingTransactions();
 
             secondWallet.SendTokens(8, firstWallet.PublicKey);

@@ -8,6 +8,7 @@ using SimpleBlockchain.WalletComponents;
 using SimpleBlockchain.Configs;
 using SimpleBlockchain.Crypto.Signatures;
 using SimpleBlockchain.Crypto.Hash;
+using System.Threading;
 
 namespace SimpleBlockchain.Net
 {
