@@ -21,7 +21,7 @@ namespace SimpleBlockchain.Storage
         public BigInteger Count { get; private set; }
         public BigInteger GlobalCount { get; private set; }
 
-        public IBlockchainUnit Last => loadUnitById(Count - 1);
+        public IBlockchainUnit Last => loadUnitById(GlobalCount - 1);
 
         public IBlockchainUnit this[BigInteger id] => loadUnitById(id);
 
@@ -73,7 +73,7 @@ namespace SimpleBlockchain.Storage
         private IBlockchainUnit loadUnitById(BigInteger id)
         {
             string unitPath = GetUnitPathById(id);
-            string addresserPath = GetUnitPathById(id);
+            string addresserPath = GetAddresserPathById(id);
 
             return loadUnit(unitPath, addresserPath);
         }
