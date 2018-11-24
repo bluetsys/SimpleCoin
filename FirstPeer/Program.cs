@@ -14,6 +14,7 @@ using SimpleBlockchain.Storage;
 using DriveAccessors;
 using System.IO;
 using System.Net;
+using System.Linq;
 
 namespace FirstPeer
 {
@@ -22,10 +23,10 @@ namespace FirstPeer
         public const int Difficulty = 2;
         public const string MiningConfigPath = "miningConfig.json";
         public const string ManagerConfigPath = "managerConfig.json";
-        public const string FirstRepositoryConfigPath = "repositoryConfig.json";
+        public const string RepositoryConfigPath = "repositoryConfig.json";
         public const string WalletManagerConfigPath = "walletManagerConfig.json";
-        public const string FirstBookPath = "addressBook.json";
-        public const string FirstNetworkConfigPath = "networkConfig.json";
+        public const string AddressBookPath = "addressBook.json";
+        public const string NetworkConfigPath = "networkConfig.json";
 
         private static void removeDirectory(string path)
         {
@@ -40,12 +41,12 @@ namespace FirstPeer
         static void Main(string[] args)
         {
             BlockchainStorageManagerParameters managerParameters = new BlockchainStorageManagerParameters() { BlocksInUnit = 2 };
-            UnitRepositoryParameters firstRepositoryParameters = new UnitRepositoryParameters() { DirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "blockchain") };
+            UnitRepositoryParameters repositoryParameters = new UnitRepositoryParameters() { DirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "blockchain") };
             WalletManagerParameters walletManagerParameters = new WalletManagerParameters() { WalletDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wallets") };
 
             NetworkParameters networkParametersFirst = new NetworkParameters()
             {
-                AddressBookPath = Path.Combine(Directory.GetCurrentDirectory(), FirstBookPath),
+                AddressBookPath = Path.Combine(Directory.GetCurrentDirectory(), AddressBookPath),
 
                 HashLength = 512,
                 RandomNumberLength = 64,
@@ -86,56 +87,56 @@ namespace FirstPeer
             using (JsonWriter jsonWriter = new JsonTextWriter(writer))
                 jsonSerializer.Serialize(jsonWriter, managerParameters);
 
-            using (Stream jsonFile = File.Open(FirstRepositoryConfigPath, FileMode.Create, FileAccess.Write, FileShare.None))
+            using (Stream jsonFile = File.Open(RepositoryConfigPath, FileMode.Create, FileAccess.Write, FileShare.None))
             using (StreamWriter writer = new StreamWriter(jsonFile))
             using (JsonWriter jsonWriter = new JsonTextWriter(writer))
-                jsonSerializer.Serialize(jsonWriter, firstRepositoryParameters);
+                jsonSerializer.Serialize(jsonWriter, repositoryParameters);
 
             using (Stream jsonFile = File.Open(WalletManagerConfigPath, FileMode.Create, FileAccess.Write, FileShare.None))
             using (StreamWriter writer = new StreamWriter(jsonFile))
             using (JsonWriter jsonWriter = new JsonTextWriter(writer))
                 jsonSerializer.Serialize(jsonWriter, walletManagerParameters);
 
-            using (Stream jsonFile = File.Open(FirstNetworkConfigPath, FileMode.Create, FileAccess.Write, FileShare.None))
+            using (Stream jsonFile = File.Open(NetworkConfigPath, FileMode.Create, FileAccess.Write, FileShare.None))
             using (StreamWriter writer = new StreamWriter(jsonFile))
             using (JsonWriter jsonWriter = new JsonTextWriter(writer))
                 jsonSerializer.Serialize(jsonWriter, networkParametersFirst);
 
             JsonBasicMiningFactoryConfig miningConfig = new JsonBasicMiningFactoryConfig(MiningConfigPath);
             JsonBlockchainStorageManagerConfig managerConfig = new JsonBlockchainStorageManagerConfig(ManagerConfigPath);
-            JsonUnitRepositoryConfig firstRepositoryConfig = new JsonUnitRepositoryConfig(FirstRepositoryConfigPath);
+            JsonUnitRepositoryConfig repositoryConfig = new JsonUnitRepositoryConfig(RepositoryConfigPath);
             JsonWalletManagerConfig walletManagerConfig = new JsonWalletManagerConfig(WalletManagerConfigPath);
-            JsonNetworkConfig firstNetworkConfig = new JsonNetworkConfig(FirstNetworkConfigPath);
+            JsonNetworkConfig networkConfig = new JsonNetworkConfig(NetworkConfigPath);
 
             #region Directory remove.
 
-            removeDirectory(firstRepositoryConfig.DirectoryPath);
+            removeDirectory(repositoryConfig.DirectoryPath);
             //removeDirectory(walletManagerConfig.WalletDirectoryPath);
 
             #endregion
 
             #region Directory creation.
 
-            Directory.CreateDirectory(firstRepositoryParameters.DirectoryPath);
-            Directory.CreateDirectory(Path.Combine(firstRepositoryConfig.DirectoryPath, "addressers"));
-            Directory.CreateDirectory(Path.Combine(firstRepositoryConfig.DirectoryPath, "units"));
-            Directory.CreateDirectory(walletManagerConfig.WalletDirectoryPath);
+            Directory.CreateDirectory(repositoryParameters.DirectoryPath);
+            Directory.CreateDirectory(Path.Combine(repositoryConfig.DirectoryPath, "addressers"));
+            Directory.CreateDirectory(Path.Combine(repositoryConfig.DirectoryPath, "units"));
+            //Directory.CreateDirectory(walletManagerConfig.WalletDirectoryPath);
 
             #endregion
 
             #region Initial units.
 
             // Addressers.
-            string firstAddresser0Path = Path.Combine(firstRepositoryParameters.DirectoryPath, "addressers", "addresser0.addr");
+            string addresser0Path = Path.Combine(repositoryParameters.DirectoryPath, "addressers", "addresser0.addr");
 
-            File.Create(firstAddresser0Path).Close();
+            File.Create(addresser0Path).Close();
 
             // Units.
-            string firstUnit0Path = Path.Combine(firstRepositoryParameters.DirectoryPath, "units", "unit0.unit");
+            string unit0Path = Path.Combine(repositoryParameters.DirectoryPath, "units", "unit0.unit");
 
-            File.Create(firstUnit0Path).Close();
+            File.Create(unit0Path).Close();
 
-            BlockchainUnit firstUnit0 = new BlockchainUnit(firstUnit0Path, new AddressStorage(firstAddresser0Path));
+            BlockchainUnit unit0 = new BlockchainUnit(unit0Path, new AddressStorage(addresser0Path));
 
             #endregion
 
@@ -145,7 +146,7 @@ namespace FirstPeer
             ISignatureFactory signatureFactory = new ECDSAFactory();
             IWalletManager walletManager = new WalletManager(walletManagerConfig, signatureFactory, transactionHashFactory);
 
-            Wallet firstWallet = walletManager.AddNewWallet();
+            Wallet firstWallet = walletManager.GetWallets().First();
 
             #region Initial transactions.
 
@@ -184,27 +185,26 @@ namespace FirstPeer
             miner.MineBlock(secondInitialBlock);
             secondInitialBlock.SignBlock(firstWallet.Signer);
 
-            firstUnit0.AddBlock(firstInitialBlock);
-            firstUnit0.AddBlock(secondInitialBlock);
+            unit0.AddBlock(firstInitialBlock);
+            unit0.AddBlock(secondInitialBlock);
 
-            firstUnit0.Dispose();
+            unit0.Dispose();
 
             #endregion
 
-            UnitRepository firstRepository = new UnitRepository(firstRepositoryConfig);
-            BlockchainStorageManager firstManager = new BlockchainStorageManager(managerConfig, firstRepository);
-            Blockchain firstBlockchain = new Blockchain(firstWallet, walletManager, transactionHashFactory, signatureFactory, miningFactory, firstManager);
+            UnitRepository repository = new UnitRepository(repositoryConfig);
+            BlockchainStorageManager storageManager = new BlockchainStorageManager(managerConfig, repository);
+            Blockchain blockchain = new Blockchain(firstWallet, walletManager, transactionHashFactory, signatureFactory, miningFactory, storageManager);
 
-            #region Address books creation.
+            #region Network.
 
-            File.Create(FirstBookPath).Close();
+            AddressBook addressBook = new AddressBook(AddressBookPath);
+            IBroadcaster network = new Network(blockchain, addressBook, networkConfig, firstWallet.Signer, new ECDSASignatureVerifier(), new ByteConverter(),
+                new KeccakDigest(networkConfig.HashLength));
 
-            PeerAddress other = new PeerAddress(firstWallet.PublicKey);
-            AddressBook firstPeerAddressBook = new AddressBook(FirstBookPath);
+            blockchain.NetworkBroadcaster = network;
 
-            //firstPeerAddressBook.Add(secondPeer, "ws://" + secondNetworkConfig.PeerHostName + $":{secondNetworkConfig.PeerPort}/simplecoin");
-
-            firstPeerAddressBook.SaveOnDrive();
+            network.Start();
 
             #endregion
         }
