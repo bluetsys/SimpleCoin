@@ -29,7 +29,7 @@ namespace SimpleBlockchain.Net
             using (Stream jsonFile = File.Open(bookPath, FileMode.Open, FileAccess.Read, FileShare.None))
             using (StreamReader reader = new StreamReader(jsonFile))
             using (JsonReader jsonReader = new JsonTextReader(reader))
-                addressBook = jsonSerializer.Deserialize<Dictionary<PeerAddress, string>>(jsonReader);
+                addressBook = jsonSerializer.Deserialize<Dictionary<PeerAddress, string>>(jsonReader) ?? new Dictionary<PeerAddress, string>();
         }
 
         public void Add(PeerAddress address, string url) => addressBook.Add(address, url);
