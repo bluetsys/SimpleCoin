@@ -5,20 +5,100 @@ using System.Text;
 using System.Threading.Tasks;
 using SimpleBlockchain.BlockchainComponents;
 using SimpleBlockchain.WalletComponents;
+using SimpleBlockchain.Configs;
+using SimpleBlockchain.Crypto.Signatures;
+using SimpleBlockchain.Crypto.Hash;
 
 namespace SimpleBlockchain.Net
 {
     public class Network : IBroadcaster
     {
-        public Blockchain Receiver { get; set; }
+        private INetworkConfig config;
 
-        public Network(Blockchain receiver)
+        private P2PClient client;
+        private P2PServer server;
+
+        public IAddressBook AddressBook { get; set; }
+        public Blockchain Blockchain { get; set; }
+
+        public Network(IAddressBook addressBook, INetworkConfig config, ISignatureProvider signer, ISignatureVerifier verifier, IByteConverter converter, IDigest digest)
         {
-            Receiver = receiver;
+            this.config = config;
+
+            AddressBook = addressBook;
+
+            client = new P2PClient() { Signer = signer, ByteConverter = converter };
+            server = new P2PServer
+                (
+                config.HashLength,
+                config.RandomNumberLength,
+                config.PeerHostName,
+                config.PeerPort,
+                converter,
+                verifier,
+                digest
+                );
+
+            server.OnBlockAccepted += (sender, eventArgs) => Blockchain.AcceptBlock(eventArgs.Block);
+            server.OnTransactionAccepted += (sender, eventArgs) => Blockchain.AcceptTransaction(eventArgs.Transaction);
         }
 
-        public void BroadcastBlock(Block block) => Receiver.AcceptBlock(block);
+        public void Start() => server.Start();
 
-        public void BroadcastTransaction(Transaction transaction) => Receiver.AcceptTransaction(transaction);
+        public void Stop() => server.Stop();
+
+        public void BroadcastBlock(Block block)
+        {
+            foreach (var item in AddressBook)
+            {
+                client.Connect(item.Value);
+
+                DateTime start = DateTime.Now;
+                bool noResponse = false;
+
+                while (client.ClientState != ClientState.Connected)
+                    if (DateTime.Now - start > config.ClientTimeout)
+                    {
+                        noResponse = true;
+
+                        break;
+                    }
+                    else
+                        continue;
+
+                if (noResponse)
+                    continue;
+
+                client.SendBlock(block);
+                client.Disconnect();
+            }
+        }
+
+        public void BroadcastTransaction(Transaction transaction)
+        {
+            foreach (var item in AddressBook)
+            {
+                client.Connect(item.Value);
+
+                DateTime start = DateTime.Now;
+                bool noResponse = false;
+
+                while (client.ClientState != ClientState.Connected)
+                    if (DateTime.Now - start > config.ClientTimeout)
+                    {
+                        noResponse = true;
+
+                        break;
+                    }
+                    else
+                        continue;
+
+                if (noResponse)
+                    continue;
+
+                client.SendTransaction(transaction);
+                client.Disconnect();
+            }
+        }
     }
 }

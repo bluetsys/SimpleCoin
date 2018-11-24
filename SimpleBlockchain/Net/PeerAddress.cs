@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SimpleBlockchain.Net
 {
-    class PeerAddress : IEquatable<PeerAddress>
+    public class PeerAddress : IEquatable<PeerAddress>
     {
         public byte[] PublicKey { get; set; }
 

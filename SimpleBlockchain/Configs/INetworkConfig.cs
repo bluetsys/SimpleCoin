@@ -15,5 +15,8 @@ namespace SimpleBlockchain.Configs
 
         string PeerHostName { get; }
         int PeerPort { get; }
+
+        TimeSpan ClientTimeout { get; }
+        TimeSpan ServerTimeout { get; }
     }
 }

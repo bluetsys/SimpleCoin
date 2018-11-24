@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.IO;
+using System.Collections;
 
 namespace SimpleBlockchain.Net
 {
-    class AddressBook
+    public class AddressBook : IAddressBook
     {
         private string bookPath;
         private Dictionary<PeerAddress, string> addressBook;
@@ -33,6 +34,8 @@ namespace SimpleBlockchain.Net
 
         public void Add(PeerAddress address, string url) => addressBook.Add(address, url);
 
+        public void Remove(PeerAddress address) => addressBook.Remove(address);
+
         public void SaveOnDrive()
         {
             JsonSerializer jsonSerializer = new JsonSerializer();
@@ -42,5 +45,9 @@ namespace SimpleBlockchain.Net
             using (JsonWriter jsonWriter = new JsonTextWriter(writer))
                 jsonSerializer.Serialize(jsonWriter, addressBook);
         }
+
+        public IEnumerator<KeyValuePair<PeerAddress, string>> GetEnumerator() => addressBook.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

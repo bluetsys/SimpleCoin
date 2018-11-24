@@ -21,6 +21,9 @@ namespace SimpleBlockchain.Configs
         public string PeerHostName => parameters.PeerHostName;
         public int PeerPort => parameters.PeerPort;
 
+        public TimeSpan ClientTimeout => parameters.ClientTimeout;
+        public TimeSpan ServerTimeout => parameters.ServerTimeout;
+
         public JsonNetworkConfig(string path)
         {
             JsonSerializer jsonSerializer = new JsonSerializer();

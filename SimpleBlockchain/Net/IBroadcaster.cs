@@ -12,5 +12,7 @@ namespace SimpleBlockchain.Net
     {
         void BroadcastBlock(Block block);
         void BroadcastTransaction(Transaction transaction);
+        void Start();
+        void Stop();
     }
 }
