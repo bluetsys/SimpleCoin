@@ -11,9 +11,6 @@ namespace SimpleBlockchain.Net
         NotConnected,
         InitializeConnection,
         Connected,
-        WaitsConnectionResponse,
-        WaitsUnitHash,
-        WaitsUnit,
-        WaitsUnitCount
+        WaitsConnectionResponse
     }
 }
