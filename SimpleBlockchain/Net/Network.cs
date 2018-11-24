@@ -21,11 +21,12 @@ namespace SimpleBlockchain.Net
         public IAddressBook AddressBook { get; set; }
         public Blockchain Blockchain { get; set; }
 
-        public Network(IAddressBook addressBook, INetworkConfig config, ISignatureProvider signer, ISignatureVerifier verifier, IByteConverter converter, IDigest digest)
+        public Network(Blockchain blockchain, IAddressBook addressBook, INetworkConfig config, ISignatureProvider signer, ISignatureVerifier verifier, IByteConverter converter, IDigest digest)
         {
             this.config = config;
 
             AddressBook = addressBook;
+            Blockchain = blockchain;
 
             client = new P2PClient() { Signer = signer, ByteConverter = converter };
             server = new P2PServer
@@ -39,8 +40,8 @@ namespace SimpleBlockchain.Net
                 digest
                 );
 
-            server.OnBlockAccepted += (sender, eventArgs) => Blockchain.AcceptBlock(eventArgs.Block);
-            server.OnTransactionAccepted += (sender, eventArgs) => Blockchain.AcceptTransaction(eventArgs.Transaction);
+            server.OnBlockAccepted += (sender, eventArgs) => Blockchain?.AcceptBlock(eventArgs.Block);
+            server.OnTransactionAccepted += (sender, eventArgs) => Blockchain?.AcceptTransaction(eventArgs.Transaction);
         }
 
         public void Start() => server.Start();

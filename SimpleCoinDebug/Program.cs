@@ -14,6 +14,7 @@ using SimpleBlockchain.Configs.Parameters;
 using SimpleBlockchain.Storage;
 using DriveAccessors;
 using System.IO;
+using System.Net;
 
 namespace SimpleBlockchain
 {
@@ -25,6 +26,10 @@ namespace SimpleBlockchain
         public const string FirstRepositoryConfigPath = "repository0Config.json";
         public const string SecondRepositoryConfigPath = "repository1Config.json";
         public const string WalletManagerConfigPath = "walletManagerConfig.json";
+        public const string FirstBookPath = "addressBook0.json";
+        public const string SecondBookPath = "addressBook1.json";
+        public const string FirstNetworkConfigPath = "networkConfig0.json";
+        public const string SecondNetworkConfigPath = "networkConfig1.json";
 
         private static void removeDirectory(string path)
         {
@@ -44,6 +49,34 @@ namespace SimpleBlockchain
             UnitRepositoryParameters firstRepositoryParameters = new UnitRepositoryParameters() { DirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "blockchain0") };
             UnitRepositoryParameters secondRepositoryParameters = new UnitRepositoryParameters() { DirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "blockchain1") };
             WalletManagerParameters walletManagerParameters = new WalletManagerParameters() { WalletDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wallets") };
+
+            NetworkParameters networkParametersFirst = new NetworkParameters()
+            {
+                AddressBookPath = Path.Combine(Directory.GetCurrentDirectory(), FirstBookPath),
+
+                HashLength = 512,
+                RandomNumberLength = 64,
+
+                PeerHostName = Dns.GetHostName(),
+                PeerPort = 8900,
+
+                ClientTimeout = new TimeSpan(0, 0, 20),
+                ServerTimeout = new TimeSpan(0, 0, 20)
+            };
+
+            NetworkParameters networkParametersSecond = new NetworkParameters()
+            {
+                AddressBookPath = Path.Combine(Directory.GetCurrentDirectory(), SecondBookPath),
+
+                HashLength = 512,
+                RandomNumberLength = 64,
+
+                PeerHostName = Dns.GetHostName(),
+                PeerPort = 8900,
+
+                ClientTimeout = new TimeSpan(0, 0, 20),
+                ServerTimeout = new TimeSpan(0, 0, 20)
+            };
 
             BasicMiningFactoryParameters parameters = new BasicMiningFactoryParameters()
             {
@@ -89,11 +122,23 @@ namespace SimpleBlockchain
             using (JsonWriter jsonWriter = new JsonTextWriter(writer))
                 jsonSerializer.Serialize(jsonWriter, walletManagerParameters);
 
+            using (Stream jsonFile = File.Open(FirstNetworkConfigPath, FileMode.Create, FileAccess.Write, FileShare.None))
+            using (StreamWriter writer = new StreamWriter(jsonFile))
+            using (JsonWriter jsonWriter = new JsonTextWriter(writer))
+                jsonSerializer.Serialize(jsonWriter, networkParametersFirst);
+
+            using (Stream jsonFile = File.Open(SecondNetworkConfigPath, FileMode.Create, FileAccess.Write, FileShare.None))
+            using (StreamWriter writer = new StreamWriter(jsonFile))
+            using (JsonWriter jsonWriter = new JsonTextWriter(writer))
+                jsonSerializer.Serialize(jsonWriter, networkParametersSecond);
+
             JsonBasicMiningFactoryConfig miningConfig = new JsonBasicMiningFactoryConfig(MiningConfigPath);
             JsonBlockchainStorageManagerConfig managerConfig = new JsonBlockchainStorageManagerConfig(ManagerConfigPath);
             JsonUnitRepositoryConfig firstRepositoryConfig = new JsonUnitRepositoryConfig(FirstRepositoryConfigPath);
             JsonUnitRepositoryConfig secondRepositoryConfig = new JsonUnitRepositoryConfig(SecondRepositoryConfigPath);
             JsonWalletManagerConfig walletManagerConfig = new JsonWalletManagerConfig(WalletManagerConfigPath);
+            JsonNetworkConfig firstNetworkConfig = new JsonNetworkConfig(FirstNetworkConfigPath);
+            JsonNetworkConfig secondNetworkConfig = new JsonNetworkConfig(SecondNetworkConfigPath);
 
             #endregion
 
@@ -222,6 +267,16 @@ namespace SimpleBlockchain
             Blockchain firstBlockchain = new Blockchain(firstWallet, walletManager, transactionHashFactory, signatureFactory, miningFactory, firstManager);
             Wallet secondWallet = walletManager.AddNewWallet();
             Blockchain secondBlockchain = new Blockchain(secondWallet, walletManager, transactionHashFactory, signatureFactory, miningFactory, secondManager);
+
+            #region Address books creation.
+
+            PeerAddress firstPeer = new PeerAddress(firstWallet.PublicKey);
+            PeerAddress secondPeer = new PeerAddress(secondWallet.PublicKey);
+
+            AddressBook firstPeerAddressBook = new AddressBook(FirstBookPath);
+            AddressBook secondPeerAddressBook = new AddressBook(SecondBookPath);
+
+            #endregion
 
             #region Network.
 

@@ -8,7 +8,12 @@ namespace SimpleBlockchain.Net
 {
     public class PeerAddress : IEquatable<PeerAddress>
     {
-        public byte[] PublicKey { get; set; }
+        public byte[] PublicKey { get; }
+
+        public PeerAddress(byte[] publicKey)
+        {
+            PublicKey = publicKey;
+        }
 
         public override bool Equals(object obj)
         {
