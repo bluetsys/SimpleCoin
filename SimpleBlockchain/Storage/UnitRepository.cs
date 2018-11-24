@@ -23,6 +23,8 @@ namespace SimpleBlockchain.Storage
 
         public IBlockchainUnit Last => loadUnitById(Count - 1);
 
+        public IBlockchainUnit this[BigInteger id] => loadUnitById(id);
+
         public UnitRepository(IUnitRepositoryConfig config)
         {
             disposed = false;
@@ -54,18 +56,36 @@ namespace SimpleBlockchain.Storage
             return unit;
         }
 
+        private void removeUnit(string unitPath, string addresserPath)
+        {
+            File.Delete(unitPath);
+            File.Delete(addresserPath);
+        }
+
+        private void removeUnitById(BigInteger id)
+        {
+            string unitPath = GetUnitPathById(id);
+            string addresserPath = GetAddresserPathById(id);
+
+            removeUnit(unitPath, addresserPath);
+        }
+
         private IBlockchainUnit loadUnitById(BigInteger id)
         {
-            string unitPath = Path.Combine(config.DirectoryPath, "units", $"unit{id}.unit");
-            string addresserPath = Path.Combine(config.DirectoryPath, "addressers", $"addresser{id}.addr");
+            string unitPath = GetUnitPathById(id);
+            string addresserPath = GetUnitPathById(id);
 
             return loadUnit(unitPath, addresserPath);
         }
 
+        public string GetUnitPathById(BigInteger id) => Path.Combine(config.DirectoryPath, "units", $"unit{id}.unit");
+
+        public string GetAddresserPathById(BigInteger id) => Path.Combine(config.DirectoryPath, "addressers", $"addresser{id}.addr");
+
         public IBlockchainUnit CreateNewUnit()
         {
-            string addresserPath = Path.Combine(config.DirectoryPath, "addressers", $"addresser{GlobalCount}.addr");
-            string unitPath = Path.Combine(config.DirectoryPath, "units", $"unit{GlobalCount}.unit");
+            string addresserPath = GetAddresserPathById(GlobalCount);
+            string unitPath = GetUnitPathById(GlobalCount);
 
             File.Create(addresserPath).Close();
             File.Create(unitPath).Close();
@@ -76,6 +96,12 @@ namespace SimpleBlockchain.Storage
             GlobalCount++;
 
             return unit;
+        }
+
+        public void RemoveUnitsStartingWith(BigInteger id)
+        {
+            for (BigInteger i = id; i < GlobalCount; i++)
+                removeUnitById(id);
         }
 
         public IEnumerable<IBlockchainUnit> GetUnits()

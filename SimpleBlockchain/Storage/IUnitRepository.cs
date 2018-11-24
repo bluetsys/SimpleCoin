@@ -13,10 +13,15 @@ namespace SimpleBlockchain.Storage
         BigInteger GlobalCount { get; }
         IBlockchainUnit Last { get; }
 
+        IBlockchainUnit this[BigInteger id] { get; }
+
+        string GetUnitPathById(BigInteger id);
+        string GetAddresserPathById(BigInteger id);
         IEnumerable<IBlockchainUnit> GetUnits();
         IEnumerable<IBlockchainUnit> GetUnitsWithoutLast();
         IEnumerable<IBlockchainUnit> GetUnitsReverse();
         IEnumerable<IBlockchainUnit> GetUnitsReverseWithoutLast();
         IBlockchainUnit CreateNewUnit();
+        void RemoveUnitsStartingWith(BigInteger id);
     }
 }
