@@ -110,7 +110,7 @@ namespace FirstPeer
             #region Directory remove.
 
             removeDirectory(firstRepositoryConfig.DirectoryPath);
-            removeDirectory(walletManagerConfig.WalletDirectoryPath);
+            //removeDirectory(walletManagerConfig.WalletDirectoryPath);
 
             #endregion
 
@@ -202,7 +202,7 @@ namespace FirstPeer
             PeerAddress other = new PeerAddress(firstWallet.PublicKey);
             AddressBook firstPeerAddressBook = new AddressBook(FirstBookPath);
 
-            firstPeerAddressBook.Add(secondPeer, "ws://" + secondNetworkConfig.PeerHostName + $":{secondNetworkConfig.PeerPort}/simplecoin");
+            //firstPeerAddressBook.Add(secondPeer, "ws://" + secondNetworkConfig.PeerHostName + $":{secondNetworkConfig.PeerPort}/simplecoin");
 
             firstPeerAddressBook.SaveOnDrive();
 
