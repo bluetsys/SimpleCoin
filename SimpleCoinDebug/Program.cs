@@ -58,8 +58,8 @@ namespace SimpleBlockchain
                 PeerHostName = Dns.GetHostName(),
                 PeerPort = 8900,
 
-                ClientTimeout = new TimeSpan(0, 0, 20),
-                ServerTimeout = new TimeSpan(0, 0, 20)
+                ClientTimeout = new TimeSpan(0, 0, 4),
+                ServerTimeout = new TimeSpan(0, 0, 4)
             };
 
             NetworkParameters networkParametersSecond = new NetworkParameters()
@@ -69,8 +69,8 @@ namespace SimpleBlockchain
                 PeerHostName = Dns.GetHostName(),
                 PeerPort = 8910,
 
-                ClientTimeout = new TimeSpan(0, 0, 20),
-                ServerTimeout = new TimeSpan(0, 0, 20)
+                ClientTimeout = new TimeSpan(0, 0, 4),
+                ServerTimeout = new TimeSpan(0, 0, 4)
             };
 
             BasicMiningFactoryParameters parameters = new BasicMiningFactoryParameters()
