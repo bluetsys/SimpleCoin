@@ -16,6 +16,7 @@ using SimpleBlockchain.Configs.Parameters;
 using Newtonsoft.Json;
 using SimpleBlockchain.Net.EventArgs;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace SimpleBlockchain.Net
 {
@@ -129,11 +130,9 @@ namespace SimpleBlockchain.Net
         {
             string message = e.Data;
             string[] words = message.Split(new char[] { ' ' });
-
 #if (DEBUG)
             int length = message.Length;
 #endif
-
             switch (words[0])
             {
                 case Commands.ClientHello when ServerState == ServerState.Idle:
@@ -147,7 +146,6 @@ namespace SimpleBlockchain.Net
                     int publicKeyLength = words[2].Length;
                     int signatureLength = words[4].Length;
 #endif
-
                     byte[] publicKey = Converter.ConvertToByteArray(words[2]);
                     byte[] signature = Converter.ConvertToByteArray(words[4]);
 
@@ -179,14 +177,18 @@ namespace SimpleBlockchain.Net
                     string transactionJson = words[1];
                     Transaction transaction = JsonConvert.DeserializeObject<Transaction>(transactionJson);
                     TransactionAcceptEventArgs transactionEventArgs = new TransactionAcceptEventArgs(transaction);
-
+#if (DEBUG)
+                    Console.WriteLine($"Accepted transaction:\n{transactionJson}");
+#endif
                     OnTransactionAccepted?.Invoke(this, transactionEventArgs);
 
                     break;
 
                 case Commands.ClientQuitRequest when ServerState == ServerState.Busy:
                     ServerState = ServerState.Idle;
-
+#if (DEBUG)
+                    Console.WriteLine("Client quit");
+#endif
                     break;
 
                 default:
