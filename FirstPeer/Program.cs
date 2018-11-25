@@ -145,6 +145,7 @@ namespace FirstPeer
             #region Directory remove.
 
             removeDirectory(repositoryConfig.DirectoryPath);
+            removeDirectory(SecondPeerRepositoryPath);
             //removeDirectory(walletManagerConfig.WalletDirectoryPath);
 
             #endregion

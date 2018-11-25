@@ -68,7 +68,9 @@ namespace SimpleBlockchain.Net
                     string blockJson = words[1];
                     Block block = JsonConvert.DeserializeObject<Block>(blockJson);
                     BlockAcceptEventArgs blockEventArgs = new BlockAcceptEventArgs(block);
-
+#if (DEBUG)
+                    Console.WriteLine($"Accepted block:\n{blockJson}");
+#endif
                     OnBlockAccepted?.Invoke(this, blockEventArgs);
 
                     break;
