@@ -66,7 +66,21 @@ namespace SimpleBlockchain.Net
             {
                 case Commands.ClientAcceptBlockRequest:
                     string blockJson = words[1];
-                    Block block = JsonConvert.DeserializeObject<Block>(blockJson);
+                    Block block = null;
+
+                    try
+                    {
+                        block = JsonConvert.DeserializeObject<Block>(blockJson) ?? throw new NullReferenceException("Block is null");
+                    }
+                    catch
+                    {
+                        Send(Commands.ServerFailureResponse);
+
+                        return;
+                    }
+
+                    Send(Commands.ServerOkResponse);
+
                     BlockAcceptEventArgs blockEventArgs = new BlockAcceptEventArgs(block);
 #if (DEBUG)
                     Console.WriteLine($"Accepted block:\n{blockJson}");
@@ -77,7 +91,21 @@ namespace SimpleBlockchain.Net
 
                 case Commands.ClientAcceptTransactionRequest:
                     string transactionJson = words[1];
-                    Transaction transaction = JsonConvert.DeserializeObject<Transaction>(transactionJson);
+                    Transaction transaction = null;
+
+                    try
+                    {
+                        transaction = JsonConvert.DeserializeObject<Transaction>(transactionJson) ?? throw new NullReferenceException("Transaction is null");
+                    }
+                    catch
+                    {
+                        Send(Commands.ServerFailureResponse);
+
+                        return;
+                    }
+
+                    Send(Commands.ServerOkResponse);
+
                     TransactionAcceptEventArgs transactionEventArgs = new TransactionAcceptEventArgs(transaction);
 #if (DEBUG)
                     Console.WriteLine($"Accepted transaction:\n{transactionJson}");

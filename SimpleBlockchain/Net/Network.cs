@@ -51,7 +51,13 @@ namespace SimpleBlockchain.Net
                 client.Connect(item.Value);
                 Thread.Sleep(4000);
                 client.SendBlock(block);
-                Thread.Sleep(4000);
+
+                DateTime start = DateTime.Now;
+
+                while (DateTime.Now - start < config.ClientTimeout)
+                    if (client.IsReady)
+                        break;
+
                 client.Disconnect();
             }
         }
@@ -63,7 +69,13 @@ namespace SimpleBlockchain.Net
                 client.Connect(item.Value);
                 Thread.Sleep(4000);
                 client.SendTransaction(transaction);
-                Thread.Sleep(4000);
+
+                DateTime start = DateTime.Now;
+
+                while (DateTime.Now - start < config.ClientTimeout)
+                    if (client.IsReady)
+                        break;
+
                 client.Disconnect();
             }
         }
