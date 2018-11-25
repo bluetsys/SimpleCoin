@@ -66,6 +66,7 @@ namespace SimpleBlockchain.Net
             string blockJson = JsonConvert.SerializeObject(block);
             string message = Commands.ClientAcceptBlockRequest + " " + blockJson;
 
+            IsReady = false;
             client.Send(message);
         }
 
@@ -76,6 +77,7 @@ namespace SimpleBlockchain.Net
             string transactionJson = JsonConvert.SerializeObject(transaction);
             string message = Commands.ClientAcceptTransactionRequest + " " + transactionJson;
 
+            IsReady = false;
             client.Send(message);
         }
     }
