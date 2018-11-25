@@ -40,6 +40,8 @@ namespace FirstPeer
 
         static void Main(string[] args)
         {
+            #region Configs.
+
             BlockchainStorageManagerParameters managerParameters = new BlockchainStorageManagerParameters() { BlocksInUnit = 2 };
             UnitRepositoryParameters repositoryParameters = new UnitRepositoryParameters() { DirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "blockchain") };
             WalletManagerParameters walletManagerParameters = new WalletManagerParameters() { WalletDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wallets") };
@@ -52,7 +54,7 @@ namespace FirstPeer
                 RandomNumberLength = 64,
 
                 PeerHostName = Dns.GetHostName(),
-                PeerPort = 8900,
+                PeerPort = 8910,
 
                 ClientTimeout = new TimeSpan(0, 0, 20),
                 ServerTimeout = new TimeSpan(0, 0, 20)
@@ -108,6 +110,8 @@ namespace FirstPeer
             JsonWalletManagerConfig walletManagerConfig = new JsonWalletManagerConfig(WalletManagerConfigPath);
             JsonNetworkConfig networkConfig = new JsonNetworkConfig(NetworkConfigPath);
 
+            #endregion
+
             #region Directory remove.
 
             removeDirectory(repositoryConfig.DirectoryPath);
@@ -146,22 +150,22 @@ namespace FirstPeer
             ISignatureFactory signatureFactory = new ECDSAFactory();
             IWalletManager walletManager = new WalletManager(walletManagerConfig, signatureFactory, transactionHashFactory);
 
-            Wallet firstWallet = walletManager.GetWallets().First();
+            Wallet wallet = walletManager.GetWallets().First();
 
             #region Initial transactions.
 
             LinkedList<Transaction> firstInitialList = new LinkedList<Transaction>();
             LinkedList<Transaction> secondInitialList = new LinkedList<Transaction>();
 
-            Transaction firstInitialTransaction = new Transaction(firstWallet.PublicKey, firstWallet.PublicKey, 32, transactionHashFactory);
-            Transaction secondInitialTransaction = new Transaction(firstWallet.PublicKey, firstWallet.PublicKey, 19, transactionHashFactory);
-            Transaction thirdInitialTransaction = new Transaction(firstWallet.PublicKey, firstWallet.PublicKey, 32, transactionHashFactory);
-            Transaction fourthInitialTransaction = new Transaction(firstWallet.PublicKey, firstWallet.PublicKey, 19, transactionHashFactory);
+            Transaction firstInitialTransaction = new Transaction(wallet.PublicKey, wallet.PublicKey, 32, transactionHashFactory);
+            Transaction secondInitialTransaction = new Transaction(wallet.PublicKey, wallet.PublicKey, 19, transactionHashFactory);
+            Transaction thirdInitialTransaction = new Transaction(wallet.PublicKey, wallet.PublicKey, 32, transactionHashFactory);
+            Transaction fourthInitialTransaction = new Transaction(wallet.PublicKey, wallet.PublicKey, 19, transactionHashFactory);
 
-            firstInitialTransaction.SignTransaction(firstWallet.Signer);
-            secondInitialTransaction.SignTransaction(firstWallet.Signer);
-            thirdInitialTransaction.SignTransaction(firstWallet.Signer);
-            fourthInitialTransaction.SignTransaction(firstWallet.Signer);
+            firstInitialTransaction.SignTransaction(wallet.Signer);
+            secondInitialTransaction.SignTransaction(wallet.Signer);
+            thirdInitialTransaction.SignTransaction(wallet.Signer);
+            fourthInitialTransaction.SignTransaction(wallet.Signer);
 
             firstInitialList.AddLast(firstInitialTransaction);
             firstInitialList.AddLast(secondInitialTransaction);
@@ -175,15 +179,15 @@ namespace FirstPeer
             IHashFactory miningHashFactory = miningFactory.GetMiningHashFactoryById(3);
             IMiner miner = new BasicMiner(3, Difficulty, miningHashFactory);
 
-            Block firstInitialBlock = new Block(firstWallet.PublicKey, new byte[hashFactory.GetDigest().HashLength], firstInitialList, hashFactory);
+            Block firstInitialBlock = new Block(wallet.PublicKey, new byte[hashFactory.GetDigest().HashLength], firstInitialList, hashFactory);
 
             miner.MineBlock(firstInitialBlock);
-            firstInitialBlock.SignBlock(firstWallet.Signer);
+            firstInitialBlock.SignBlock(wallet.Signer);
 
-            Block secondInitialBlock = new Block(firstWallet.PublicKey, firstInitialBlock.Hash, secondInitialList, hashFactory);
+            Block secondInitialBlock = new Block(wallet.PublicKey, firstInitialBlock.Hash, secondInitialList, hashFactory);
 
             miner.MineBlock(secondInitialBlock);
-            secondInitialBlock.SignBlock(firstWallet.Signer);
+            secondInitialBlock.SignBlock(wallet.Signer);
 
             unit0.AddBlock(firstInitialBlock);
             unit0.AddBlock(secondInitialBlock);
@@ -194,12 +198,12 @@ namespace FirstPeer
 
             UnitRepository repository = new UnitRepository(repositoryConfig);
             BlockchainStorageManager storageManager = new BlockchainStorageManager(managerConfig, repository);
-            Blockchain blockchain = new Blockchain(firstWallet, walletManager, transactionHashFactory, signatureFactory, miningFactory, storageManager);
+            Blockchain blockchain = new Blockchain(wallet, walletManager, transactionHashFactory, signatureFactory, miningFactory, storageManager);
 
             #region Network.
 
             AddressBook addressBook = new AddressBook(AddressBookPath);
-            IBroadcaster network = new Network(blockchain, addressBook, networkConfig, firstWallet.Signer, new ECDSASignatureVerifier(), new ByteConverter(),
+            IBroadcaster network = new Network(blockchain, addressBook, networkConfig, wallet.Signer, new ECDSASignatureVerifier(), new ByteConverter(),
                 new KeccakDigest(networkConfig.HashLength));
 
             blockchain.NetworkBroadcaster = network;
@@ -207,6 +211,51 @@ namespace FirstPeer
             network.Start();
 
             #endregion
+
+            Console.WriteLine("0 - send transaction;\n1 - mine new block;\n2 - validate blockchain;\n3 - count your balance;\n4 - quit");
+
+            string input;
+
+            do
+            {
+                input = Console.ReadLine();
+
+                switch (input)
+                {
+                    case "0":
+                        wallet.SendTokens(8, addressBook.First().Key.PublicKey);
+
+                        break;
+
+                    case "1":
+                        blockchain.ProcessPendingTransactions();
+
+                        break;
+
+                    case "2":
+                        Console.WriteLine(blockchain.IsValid);
+
+                        break;
+
+                    case "3":
+                        Console.WriteLine(blockchain.CountBalanceForWallet(wallet.PublicKey));
+
+                        break;
+
+                    case "4":
+                        Console.WriteLine("Bye!");
+
+                        break;
+
+                    default:
+                        Console.WriteLine("Wrong input!");
+
+                        break;
+                }
+            }
+            while (input != "4");
+
+            network.Stop();
         }
     }
 }
