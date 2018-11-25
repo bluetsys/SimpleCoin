@@ -200,6 +200,8 @@ namespace FirstPeer
             BlockchainStorageManager storageManager = new BlockchainStorageManager(managerConfig, repository);
             Blockchain blockchain = new Blockchain(wallet, walletManager, transactionHashFactory, signatureFactory, miningFactory, storageManager);
 
+            wallet.Blockchain = blockchain;
+
             #region Network.
 
             AddressBook addressBook = new AddressBook(AddressBookPath);
@@ -212,6 +214,7 @@ namespace FirstPeer
 
             #endregion
 
+            Console.WriteLine("Second");
             Console.WriteLine("0 - send transaction;\n1 - mine new block;\n2 - validate blockchain;\n3 - count your balance;\n4 - quit");
 
             string input;
