@@ -1,17 +1,10 @@
 ﻿#define DEBUG
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SimpleBlockchain.BlockchainComponents;
 using SimpleBlockchain.WalletComponents;
 using WebSocketSharp;
 using System.Net;
-using System.IO;
 using SimpleBlockchain.Crypto.Signatures;
-using SimpleBlockchain.Crypto.Hash;
 using Newtonsoft.Json;
 
 namespace SimpleBlockchain.Net
