@@ -49,9 +49,9 @@ namespace SimpleBlockchain.Net
             foreach (var item in AddressBook)
             {
                 client.Connect(item.Value);
-                Thread.Sleep(4000);
+                Thread.Sleep(config.ClientTimeout);
                 client.SendBlock(block);
-                Thread.Sleep(4000);
+                Thread.Sleep(config.ClientTimeout);
                 client.Disconnect();
             }
         }
@@ -61,9 +61,9 @@ namespace SimpleBlockchain.Net
             foreach (var item in AddressBook)
             {
                 client.Connect(item.Value);
-                Thread.Sleep(4000);
+                Thread.Sleep(config.ClientTimeout);
                 client.SendTransaction(transaction);
-                Thread.Sleep(4000);
+                Thread.Sleep(config.ClientTimeout);
                 client.Disconnect();
             }
         }

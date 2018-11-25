@@ -55,9 +55,6 @@ namespace SimpleBlockchain
             {
                 AddressBookPath = Path.Combine(Directory.GetCurrentDirectory(), FirstBookPath),
 
-                HashLength = 512,
-                RandomNumberLength = 64,
-
                 PeerHostName = Dns.GetHostName(),
                 PeerPort = 8900,
 
@@ -68,9 +65,6 @@ namespace SimpleBlockchain
             NetworkParameters networkParametersSecond = new NetworkParameters()
             {
                 AddressBookPath = Path.Combine(Directory.GetCurrentDirectory(), SecondBookPath),
-
-                HashLength = 512,
-                RandomNumberLength = 64,
 
                 PeerHostName = Dns.GetHostName(),
                 PeerPort = 8910,

@@ -15,9 +15,6 @@ namespace SimpleBlockchain.Configs
 
         public string AddressBookPath => parameters.AddressBookPath;
 
-        public int HashLength => parameters.HashLength;
-        public int RandomNumberLength => parameters.RandomNumberLength;
-
         public string PeerHostName => parameters.PeerHostName;
         public int PeerPort => parameters.PeerPort;
 

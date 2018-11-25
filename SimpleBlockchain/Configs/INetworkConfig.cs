@@ -10,9 +10,6 @@ namespace SimpleBlockchain.Configs
     {
         string AddressBookPath { get; }
 
-        int HashLength { get; }
-        int RandomNumberLength { get; }
-
         string PeerHostName { get; }
         int PeerPort { get; }
 
