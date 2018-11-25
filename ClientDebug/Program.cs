@@ -20,8 +20,7 @@ namespace ClientDebug
         {
             P2PClient client = new P2PClient()
             {
-                Signer = new ECDSASignatureProvider(),
-                ByteConverter = new ByteConverter()
+                Signer = new ECDSASignatureProvider()
             };
 
             #region Connection.
@@ -29,8 +28,6 @@ namespace ClientDebug
             client.Connect("ws://" + Dns.GetHostName() + ":8900/simplecoin");
 
             Thread.Sleep(4000);
-
-            Console.WriteLine(client.ClientState == ClientState.Connected ? "Connection successfully established" : "Connection was not established");
 
             #endregion
 
