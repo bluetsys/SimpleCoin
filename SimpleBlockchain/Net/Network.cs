@@ -22,23 +22,18 @@ namespace SimpleBlockchain.Net
         public IAddressBook AddressBook { get; set; }
         public Blockchain Blockchain { get; set; }
 
-        public Network(Blockchain blockchain, IAddressBook addressBook, INetworkConfig config, ISignatureProvider signer, ISignatureVerifier verifier, IByteConverter converter, IDigest digest)
+        public Network(Blockchain blockchain, IAddressBook addressBook, INetworkConfig config, ISignatureProvider signer)
         {
             this.config = config;
 
             AddressBook = addressBook;
             Blockchain = blockchain;
 
-            client = new P2PClient() { Signer = signer, ByteConverter = converter };
+            client = new P2PClient() { Signer = signer };
             server = new P2PServer
                 (
-                config.HashLength,
-                config.RandomNumberLength,
                 config.PeerHostName,
-                config.PeerPort,
-                converter,
-                verifier,
-                digest
+                config.PeerPort
                 );
 
             server.OnBlockAccepted += (sender, eventArgs) => Blockchain?.AcceptBlock(eventArgs.Block);
@@ -54,23 +49,6 @@ namespace SimpleBlockchain.Net
             foreach (var item in AddressBook)
             {
                 client.Connect(item.Value);
-
-                DateTime start = DateTime.Now;
-                bool noResponse = false;
-
-                while (client.ClientState != ClientState.Connected)
-                    if (DateTime.Now - start > config.ClientTimeout)
-                    {
-                        noResponse = true;
-
-                        break;
-                    }
-                    else
-                        continue;
-
-                if (noResponse)
-                    continue;
-
                 client.SendBlock(block);
                 client.Disconnect();
             }
@@ -81,23 +59,6 @@ namespace SimpleBlockchain.Net
             foreach (var item in AddressBook)
             {
                 client.Connect(item.Value);
-
-                DateTime start = DateTime.Now;
-                bool noResponse = false;
-
-                while (client.ClientState != ClientState.Connected)
-                    if (DateTime.Now - start > config.ClientTimeout)
-                    {
-                        noResponse = true;
-
-                        break;
-                    }
-                    else
-                        continue;
-
-                if (noResponse)
-                    continue;
-
                 client.SendTransaction(transaction);
                 client.Disconnect();
             }

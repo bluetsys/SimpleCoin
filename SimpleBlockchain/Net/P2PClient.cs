@@ -20,90 +20,22 @@ namespace SimpleBlockchain.Net
     {
         private WebSocket client;
 
-        public ClientState ClientState { get; private set; }
-
         public ISignatureProvider Signer { get; set; }
-        public IByteConverter ByteConverter { get; set; }
-
-        public P2PClient()
-        {
-            ClientState = ClientState.NotConnected;
-        }
 
         private void throwIfNotConnected()
         {
-            if (ClientState != ClientState.Connected)
-                throw new InvalidOperationException("Client is not connected");
-        }
-
-        private void onMessageHandler(object sender, MessageEventArgs eventArgs)
-        {
-            string message = eventArgs.Data;
-            string[] words = message.Split(new char[] { ' ' });
-
-            switch (words[0])
-            {
-                case Commands.ServerAuthRequest when ClientState == ClientState.InitializeConnection:
-                    sendAuthResponse(ByteConverter.ConvertToByteArray(words[1]));
-                    ClientState = ClientState.WaitsConnectionResponse;
-
-                    break;
-
-                case Commands.ServerAuthSuccessfulResponse when ClientState == ClientState.WaitsConnectionResponse:
-                    ClientState = ClientState.Connected;
-
-                    break;
-
-                case Commands.ServerBusyResponse:
-                    throw new WebException("Connection refused by endpoint; it is busy");
-
-                case Commands.ServerProtocolViolationResponse:
-                    throw new ProtocolViolationException($"Remote endpoint caused a protocol violation exception");
-
-                default:
-                    throw new ProtocolViolationException($"Command {words[0]} sent during {ClientState} state");
-            }
-        }
-
-        private void sendAuthResponse(byte[] hash)
-        {
-            byte[] signature = Signer.SignHash(hash);
-
-            string message = Commands.ClientAuthResponse + " " +
-                             Commands.ClientPublicKeyResponse + " " + ByteConverter.ConvertToString(Signer.PublicKey) + " " +
-                             Commands.ClientSignatureResponse + " " + ByteConverter.ConvertToString(signature);
-
-#if (DEBUG)
-            int length = message.Length;
-            int publicKeyLength = ByteConverter.ConvertToString(Signer.PublicKey).Length;
-            int signatureLength = ByteConverter.ConvertToString(signature).Length;
-#endif
-
-            client.Send(message);
+            if (client.ReadyState != WebSocketState.Open)
+                throw new WebException("Socket is not connected");
         }
 
         public void Connect(string url)
         {
             client = new WebSocket(url);
-            client.OnMessage += onMessageHandler;
-            ClientState = ClientState.InitializeConnection;
 
             client.Connect();
-
-            string message = Commands.ClientHello;
-
-            client.Send(message);
         }
 
-        public void Disconnect()
-        {
-            string message = Commands.ClientQuitRequest;
-
-            client?.Send(message);
-            client?.Close();
-
-            ClientState = ClientState.NotConnected;
-        }
+        public void Disconnect() => client?.Close();
 
         public void SendBlock(Block block)
         {

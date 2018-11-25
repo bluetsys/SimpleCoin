@@ -237,8 +237,7 @@ namespace FirstPeer
             #region Network.
 
             AddressBook addressBook = new AddressBook(AddressBookPath);
-            IBroadcaster network = new Network(blockchain, addressBook, networkConfig, wallet.Signer, new ECDSASignatureVerifier(), new ByteConverter(),
-                new KeccakDigest(networkConfig.HashLength));
+            IBroadcaster network = new Network(blockchain, addressBook, networkConfig, wallet.Signer);
 
             blockchain.NetworkBroadcaster = network;
 

@@ -24,88 +24,17 @@ namespace SimpleBlockchain.Net
     {
         private WebSocketServer server;
 
-        private byte[] hashToVerify;
-
-        public ServerState ServerState { get; private set; }
-
-        public int RandomNumberLength { get; set; }
-        public int HashLength { get; set; }
-
         public string HostName { get; set; }
         public int Port { get; set; }
-
-        public IByteConverter Converter { get; set; }
-        public ISignatureVerifier Verifier { get; set; }
-        public IDigest Digest { get; set; }
 
         public event EventHandler<BlockAcceptEventArgs> OnBlockAccepted;
         public event EventHandler<TransactionAcceptEventArgs> OnTransactionAccepted;
 
-        public P2PServer()
+        public P2PServer(string hostName, int port)
         {
-            ServerState = ServerState.Idle;
-        }
-
-        public P2PServer(int hashLength, int randomNumberLength, string hostName, int port, IByteConverter converter, ISignatureVerifier verifier, IDigest digest)
-            : this()
-        {
-            HashLength = hashLength;
-            RandomNumberLength = randomNumberLength;
-            Digest = digest;
-
             HostName = hostName;
             Port = port;
-
-            Converter = converter;
-            Verifier = verifier;
         }
-
-        #region Data senders.
-
-        private void requireAuth()
-        {
-            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
-            byte[] randomNumber = new byte[RandomNumberLength];
-            byte[] randomNumberHash;
-
-            rng.GetBytes(randomNumber);
-            randomNumberHash = Digest.GetHash(randomNumber);
-            hashToVerify = randomNumberHash;
-
-            string message = Commands.ServerAuthRequest + " " + Converter.ConvertToString(randomNumberHash);
-
-            Send(message);
-        }
-
-        private void sendAuthSuccessful()
-        {
-            string message = Commands.ServerAuthSuccessfulResponse;
-
-            Send(message);
-        }
-
-        private void sendAuthFailure()
-        {
-            string message = Commands.ServerAuthFailureResponse;
-
-            Send(message);
-        }
-
-        private void sendServerBusy()
-        {
-            string message = Commands.ServerBusyResponse;
-
-            Send(message);
-        }
-
-        private void sendProtocolViolation()
-        {
-            string message = Commands.ServerProtocolViolationResponse;
-
-            Send(message);
-        }
-
-        #endregion
 
         public void Start()
         {
@@ -113,7 +42,7 @@ namespace SimpleBlockchain.Net
             
             server.AddWebSocketService("/simplecoin", () =>
             {
-                P2PServer p2pServer = new P2PServer(HashLength, RandomNumberLength, HostName, Port, Converter, Verifier, Digest);
+                P2PServer p2pServer = new P2PServer(HostName, Port);
 
                 p2pServer.OnBlockAccepted += OnBlockAccepted;
                 p2pServer.OnTransactionAccepted += OnTransactionAccepted;
@@ -135,36 +64,7 @@ namespace SimpleBlockchain.Net
 #endif
             switch (words[0])
             {
-                case Commands.ClientHello when ServerState == ServerState.Idle:
-                    requireAuth();
-                    ServerState = ServerState.WaitingAuth;
-
-                    break;
-
-                case Commands.ClientAuthResponse when ServerState == ServerState.WaitingAuth:
-#if (DEBUG)
-                    int publicKeyLength = words[2].Length;
-                    int signatureLength = words[4].Length;
-#endif
-                    byte[] publicKey = Converter.ConvertToByteArray(words[2]);
-                    byte[] signature = Converter.ConvertToByteArray(words[4]);
-
-                    bool verified = Verifier.VerifyHash(publicKey, hashToVerify, signature);
-
-                    if (verified)
-                    {
-                        sendAuthSuccessful();
-                        ServerState = ServerState.Busy;
-                    }
-                    else
-                    {
-                        sendAuthFailure();
-                        ServerState = ServerState.Idle;
-                    }
-
-                    break;
-
-                case Commands.ClientAcceptBlockRequest when ServerState == ServerState.Busy:
+                case Commands.ClientAcceptBlockRequest:
                     string blockJson = words[1];
                     Block block = JsonConvert.DeserializeObject<Block>(blockJson);
                     BlockAcceptEventArgs blockEventArgs = new BlockAcceptEventArgs(block);
@@ -173,7 +73,7 @@ namespace SimpleBlockchain.Net
 
                     break;
 
-                case Commands.ClientAcceptTransactionRequest when ServerState == ServerState.Busy:
+                case Commands.ClientAcceptTransactionRequest:
                     string transactionJson = words[1];
                     Transaction transaction = JsonConvert.DeserializeObject<Transaction>(transactionJson);
                     TransactionAcceptEventArgs transactionEventArgs = new TransactionAcceptEventArgs(transaction);
@@ -181,21 +81,6 @@ namespace SimpleBlockchain.Net
                     Console.WriteLine($"Accepted transaction:\n{transactionJson}");
 #endif
                     OnTransactionAccepted?.Invoke(this, transactionEventArgs);
-
-                    break;
-
-                case Commands.ClientQuitRequest when ServerState == ServerState.Busy:
-                    ServerState = ServerState.Idle;
-#if (DEBUG)
-                    Console.WriteLine("Client quit");
-#endif
-                    break;
-
-                default:
-                    if (ServerState == ServerState.Busy || ServerState == ServerState.WaitingAuth)
-                        sendServerBusy();
-                    else
-                        sendProtocolViolation();
 
                     break;
             }

@@ -290,11 +290,9 @@ namespace SimpleBlockchain
 
             #region Network.
 
-            IBroadcaster firstNetwork = new Network(firstBlockchain, firstPeerAddressBook, firstNetworkConfig, firstWallet.Signer, new ECDSASignatureVerifier(), new ByteConverter(),
-                new KeccakDigest(firstNetworkConfig.HashLength));
+            IBroadcaster firstNetwork = new Network(firstBlockchain, firstPeerAddressBook, firstNetworkConfig, firstWallet.Signer);
 
-            IBroadcaster secondNetwork = new Network(secondBlockchain, secondPeerAddressBook, secondNetworkConfig, secondWallet.Signer, new ECDSASignatureVerifier(), new ByteConverter(),
-                new KeccakDigest(secondNetworkConfig.HashLength));
+            IBroadcaster secondNetwork = new Network(secondBlockchain, secondPeerAddressBook, secondNetworkConfig, secondWallet.Signer);
 
             firstBlockchain.NetworkBroadcaster = firstNetwork;
             secondBlockchain.NetworkBroadcaster = secondNetwork;
