@@ -112,38 +112,6 @@ namespace FirstPeer
 
             #endregion
 
-            #region Directory remove.
-
-            removeDirectory(repositoryConfig.DirectoryPath);
-            //removeDirectory(walletManagerConfig.WalletDirectoryPath);
-
-            #endregion
-
-            #region Directory creation.
-
-            Directory.CreateDirectory(repositoryParameters.DirectoryPath);
-            Directory.CreateDirectory(Path.Combine(repositoryConfig.DirectoryPath, "addressers"));
-            Directory.CreateDirectory(Path.Combine(repositoryConfig.DirectoryPath, "units"));
-            //Directory.CreateDirectory(walletManagerConfig.WalletDirectoryPath);
-
-            #endregion
-
-            #region Initial units.
-
-            // Addressers.
-            string addresser0Path = Path.Combine(repositoryParameters.DirectoryPath, "addressers", "addresser0.addr");
-
-            File.Create(addresser0Path).Close();
-
-            // Units.
-            string unit0Path = Path.Combine(repositoryParameters.DirectoryPath, "units", "unit0.unit");
-
-            File.Create(unit0Path).Close();
-
-            BlockchainUnit unit0 = new BlockchainUnit(unit0Path, new AddressStorage(addresser0Path));
-
-            #endregion
-
             IMiningFactory miningFactory = new BasicMiningFactory(miningConfig);
             IHashFactory hashFactory = miningFactory.GetMiningHashFactoryById(3);
             IHashFactory transactionHashFactory = new TransactionHashFactory();
@@ -151,51 +119,6 @@ namespace FirstPeer
             IWalletManager walletManager = new WalletManager(walletManagerConfig, signatureFactory, transactionHashFactory);
 
             Wallet wallet = walletManager.GetWallets().First();
-
-            #region Initial transactions.
-
-            LinkedList<Transaction> firstInitialList = new LinkedList<Transaction>();
-            LinkedList<Transaction> secondInitialList = new LinkedList<Transaction>();
-
-            Transaction firstInitialTransaction = new Transaction(wallet.PublicKey, wallet.PublicKey, 32, transactionHashFactory);
-            Transaction secondInitialTransaction = new Transaction(wallet.PublicKey, wallet.PublicKey, 19, transactionHashFactory);
-            Transaction thirdInitialTransaction = new Transaction(wallet.PublicKey, wallet.PublicKey, 32, transactionHashFactory);
-            Transaction fourthInitialTransaction = new Transaction(wallet.PublicKey, wallet.PublicKey, 19, transactionHashFactory);
-
-            firstInitialTransaction.SignTransaction(wallet.Signer);
-            secondInitialTransaction.SignTransaction(wallet.Signer);
-            thirdInitialTransaction.SignTransaction(wallet.Signer);
-            fourthInitialTransaction.SignTransaction(wallet.Signer);
-
-            firstInitialList.AddLast(firstInitialTransaction);
-            firstInitialList.AddLast(secondInitialTransaction);
-            secondInitialList.AddLast(thirdInitialTransaction);
-            secondInitialList.AddLast(fourthInitialTransaction);
-
-            #endregion
-
-            #region Initial blocks.
-
-            IHashFactory miningHashFactory = miningFactory.GetMiningHashFactoryById(3);
-            IMiner miner = new BasicMiner(3, Difficulty, miningHashFactory);
-
-            Block firstInitialBlock = new Block(wallet.PublicKey, new byte[hashFactory.GetDigest().HashLength], firstInitialList, hashFactory);
-
-            miner.MineBlock(firstInitialBlock);
-            firstInitialBlock.SignBlock(wallet.Signer);
-
-            Block secondInitialBlock = new Block(wallet.PublicKey, firstInitialBlock.Hash, secondInitialList, hashFactory);
-
-            miner.MineBlock(secondInitialBlock);
-            secondInitialBlock.SignBlock(wallet.Signer);
-
-            unit0.AddBlock(firstInitialBlock);
-            unit0.AddBlock(secondInitialBlock);
-
-            unit0.Dispose();
-
-            #endregion
-
             UnitRepository repository = new UnitRepository(repositoryConfig);
             BlockchainStorageManager storageManager = new BlockchainStorageManager(managerConfig, repository);
             Blockchain blockchain = new Blockchain(wallet, walletManager, transactionHashFactory, signatureFactory, miningFactory, storageManager);
