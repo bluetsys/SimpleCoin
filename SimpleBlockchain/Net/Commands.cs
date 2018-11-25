@@ -10,5 +10,8 @@ namespace SimpleBlockchain.Net
     {
         public const string ClientAcceptTransactionRequest = "TRANSACTION";
         public const string ClientAcceptBlockRequest = "BLOCK";
+
+        public const string ServerOkResponse = "OK";
+        public const string ServerFailureResponse = "FAILURE";
     }
 }

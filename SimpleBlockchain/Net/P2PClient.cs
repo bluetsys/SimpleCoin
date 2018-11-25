@@ -13,7 +13,14 @@ namespace SimpleBlockchain.Net
     {
         private WebSocket client;
 
+        public bool IsReady { get; private set; }
+
         public ISignatureProvider Signer { get; set; }
+
+        public P2PClient()
+        {
+            IsReady = false;
+        }
 
         private void throwIfNotConnected()
         {
@@ -21,11 +28,33 @@ namespace SimpleBlockchain.Net
                 throw new WebException("Socket is not connected");
         }
 
+        private void messageHandler(object sender, MessageEventArgs eventArgs)
+        {
+            string message = eventArgs.Data;
+
+            switch (message)
+            {
+                case Commands.ServerOkResponse when IsReady == false:
+                    IsReady = true;
+
+                    break;
+
+                case Commands.ServerFailureResponse when IsReady == false:
+                    IsReady = true;
+
+                    throw new WebException("Couldn't successfully send data to the server");
+
+                default:
+                    throw new ProtocolViolationException($"Message {message} sent when client is {(IsReady ? "ready" : "not ready")}");
+            }
+        }
+
         public void Connect(string url)
         {
             client = new WebSocket(url);
 
             client.Connect();
+            IsReady = true;
         }
 
         public void Disconnect() => client?.Close();
