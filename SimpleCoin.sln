@@ -15,9 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerDebug", "ServerDebug\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientDebug", "ClientDebug\ClientDebug.csproj", "{8D364403-E9C7-45B3-A76F-5D85C84276A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirstPeer", "FirstPeer\FirstPeer.csproj", "{A4CAEA1C-66D6-4D03-AF8F-CD9FB6A6EBB3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FirstPeer", "FirstPeer\FirstPeer.csproj", "{A4CAEA1C-66D6-4D03-AF8F-CD9FB6A6EBB3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecondPeer", "SecondPeer\SecondPeer.csproj", "{78952243-DF36-4DF6-8370-0CAB95B4099A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecondPeer", "SecondPeer\SecondPeer.csproj", "{78952243-DF36-4DF6-8370-0CAB95B4099A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Diagrams", "Diagrams\Diagrams.csproj", "{EC67BF53-3765-4CAC-8465-43F0653ECAD8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{78952243-DF36-4DF6-8370-0CAB95B4099A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78952243-DF36-4DF6-8370-0CAB95B4099A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{78952243-DF36-4DF6-8370-0CAB95B4099A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC67BF53-3765-4CAC-8465-43F0653ECAD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC67BF53-3765-4CAC-8465-43F0653ECAD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC67BF53-3765-4CAC-8465-43F0653ECAD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC67BF53-3765-4CAC-8465-43F0653ECAD8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
