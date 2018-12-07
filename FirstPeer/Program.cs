@@ -265,12 +265,12 @@ namespace FirstPeer
                         break;
 
                     case "2":
-                        Console.WriteLine(blockchain.IsValid);
+                        Console.WriteLine(blockchain.IsValid ? "Blockchain is valid" : "Blockchain is invalid");
 
                         break;
 
                     case "3":
-                        Console.WriteLine(blockchain.CountBalanceForWallet(wallet.PublicKey));
+                        Console.WriteLine($"Current balance for testing wallet: " + blockchain.CountBalanceForWallet(wallet.PublicKey));
 
                         break;
 

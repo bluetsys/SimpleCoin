@@ -134,7 +134,7 @@ namespace FirstPeer
             #endregion
 
             Console.WriteLine("Second");
-            Console.WriteLine("0 - send transaction;\n1 - mine new block;\n2 - validate blockchain;\n3 - count your balance;\n4 - quit");
+            Console.WriteLine("0 - send transaction;\n1 - mine new block;\n2 - validate blockchain;\n3 - count your balance;\n4 - quit\n5 - create new wallet");
 
             string input;
 
@@ -155,7 +155,7 @@ namespace FirstPeer
                         break;
 
                     case "2":
-                        Console.WriteLine(blockchain.IsValid);
+                        Console.WriteLine(blockchain.IsValid ? "Blockchain is valid" : "Blockchain is invalid");
 
                         break;
 
@@ -166,6 +166,14 @@ namespace FirstPeer
 
                     case "4":
                         Console.WriteLine("Bye!");
+
+                        break;
+
+                    case "5":
+                        Wallet newOne = walletManager.AddNewWallet();
+
+                        Console.WriteLine("New wallet created!");
+                        Console.WriteLine($"Public key: {hashFactory.GetByteConverter().ConvertToString(newOne.PublicKey)}");
 
                         break;
 
